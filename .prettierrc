@@ -1,0 +1,23 @@
+{
+  "semi": false,
+  "overrides": [
+    {
+      "files": "*.test.js",
+      "options": {
+        "semi": true
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx", "legacy/**/*.js"],
+      "options": {
+        "tabWidth": 4,
+        "parser": "flow",
+        "plugins": ["prettier-plugin-tailwindcss"]
+      }
+    },
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
+}
