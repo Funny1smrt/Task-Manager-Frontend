@@ -1,12 +1,6 @@
 {
-  "semi": false,
+  "semi": true,
   "overrides": [
-    {
-      "files": "*.test.js",
-      "options": {
-        "semi": true
-      }
-    },
     {
       "files": ["*.js", "*.jsx", "legacy/**/*.js"],
       "options": {

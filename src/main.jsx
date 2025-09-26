@@ -1,12 +1,12 @@
-import ReactDOM from "react-dom/client"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { UserProvider } from "./context/UserProvider.jsx"
-import ProtectedRoute from "./components/ProtectedRoute.jsx"
-import App from "./app"
-import SignIn from "./pages/auth/SignIn"
-import SignUp from "./pages/auth/SignUp"
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { UserProvider } from "./context/UserProvider.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import App from "./app";
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
 
-const root = document.getElementById("root")
+const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
     <BrowserRouter>
@@ -25,4 +25,4 @@ ReactDOM.createRoot(root).render(
             </Routes>
         </UserProvider>
     </BrowserRouter>,
-)
+);

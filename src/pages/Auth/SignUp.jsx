@@ -1,15 +1,15 @@
-import { useState, useContext } from "react"
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth"
-import { auth, provider } from "../../firebase"
+import { useState, useContext } from "react";
+import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../firebase";
 
-import { UserContext } from "../../context/UserContext"
-import { useNavigate } from "react-router-dom"
+import { UserContext } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 function SignUp() {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const { setUser } = useContext(UserContext)
-    const navigate = useNavigate()
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const { setUser } = useContext(UserContext);
+    const navigate = useNavigate();
 
     const handleSignUpWithEmail = async () => {
         try {
@@ -18,31 +18,31 @@ function SignUp() {
                 auth,
                 email,
                 password,
-            )
+            );
             // Оновлюємо контекст
-            setUser(result.user)
+            setUser(result.user);
             // Переходимо на захищену сторінку
-            navigate("/")
-            console.log("User registered successfully")
+            navigate("/");
+            console.log("User registered successfully");
         } catch (error) {
             if (error.code === "auth/email-already-in-use") {
-                console.error("Email already in use")
+                console.error("Email already in use");
             } else {
-                console.error("Sign-up error:", error.code, error.message)
+                console.error("Sign-up error:", error.code, error.message);
             }
         }
-    }
+    };
     const handleSignInWithGoogle = async () => {
         try {
-            const result = await signInWithPopup(auth, provider)
-            const user = result.user
-            setUser(user)
-            console.log("Signed in successfully")
-            navigate("/") // <-- також після входу через Google
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            setUser(user);
+            console.log("Signed in successfully");
+            navigate("/"); // <-- також після входу через Google
         } catch (error) {
-            console.error("Sign-in error:", error.code, error.message)
+            console.error("Sign-in error:", error.code, error.message);
         }
-    }
+    };
 
     return (
         <main>
@@ -69,7 +69,7 @@ function SignUp() {
                 Вже зареєстровані? <a href="/sign-in">Увійти</a>
             </p>
         </main>
-    )
+    );
 }
 
-export default SignUp
+export default SignUp;

@@ -1,11 +1,11 @@
-import { UserContext } from "./UserContext"
-import { useState, useEffect } from "react"
-import { onAuthStateChanged } from "firebase/auth"
-import { auth } from "../firebase"
+import { UserContext } from "./UserContext";
+import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase";
 
 export function UserProvider({ children }) {
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true) // додатково для spinner
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true); // додатково для spinner
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -17,19 +17,19 @@ export function UserProvider({ children }) {
                     photoURL: currentUser.photoURL || "",
                     uid: currentUser.uid,
                     creationTime: currentUser.metadata?.creationTime || null,
-                }
-                setUser(safeUser)
+                };
+                setUser(safeUser);
             } else {
-                setUser(null)
+                setUser(null);
             }
-            setLoading(false)
-        })
-        return () => unsubscribe()
-    }, [])
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
 
     return (
         <UserContext.Provider value={{ user, setUser, loading }}>
             {children}
         </UserContext.Provider>
-    )
+    );
 }

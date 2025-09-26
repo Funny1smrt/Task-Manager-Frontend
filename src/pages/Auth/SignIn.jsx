@@ -1,14 +1,14 @@
-import { useState, useContext } from "react"
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth"
-import { auth, provider } from "../../firebase"
-import { UserContext } from "../../context/UserContext"
-import { useNavigate } from "react-router-dom"
+import { useState, useContext } from "react";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../firebase";
+import { UserContext } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 function SignIn() {
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const { setUser } = useContext(UserContext)
-    const navigate = useNavigate()
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const { setUser } = useContext(UserContext);
+    const navigate = useNavigate();
 
     const handleSignInWithEmail = async () => {
         try {
@@ -16,26 +16,26 @@ function SignIn() {
                 auth,
                 email,
                 password,
-            )
-            setUser(result.user)
-            console.log("Signed in successfully")
-            navigate("/") // автоматично переходимо в додаток
+            );
+            setUser(result.user);
+            console.log("Signed in successfully");
+            navigate("/"); // автоматично переходимо в додаток
         } catch (error) {
-            console.error("Sign-in error:", error.code, error.message)
+            console.error("Sign-in error:", error.code, error.message);
         }
-    }
+    };
 
     const handleSignInWithGoogle = async () => {
         try {
-            const result = await signInWithPopup(auth, provider)
-            const user = result.user
-            setUser(user)
-            console.log("Signed in successfully")
-            navigate("/") // <-- також після входу через Google
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            setUser(user);
+            console.log("Signed in successfully");
+            navigate("/"); // <-- також після входу через Google
         } catch (error) {
-            console.error("Sign-in error:", error.code, error.message)
+            console.error("Sign-in error:", error.code, error.message);
         }
-    }
+    };
 
     return (
         <main>
@@ -60,7 +60,7 @@ function SignIn() {
                 Немає аккаунту? <a href="/sign-up">Зареєструватися</a>
             </p>
         </main>
-    )
+    );
 }
 
-export default SignIn
+export default SignIn;

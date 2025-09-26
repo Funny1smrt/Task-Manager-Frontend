@@ -1,8 +1,12 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app"
-import { getFirestore } from "firebase/firestore"
-import { GoogleAuthProvider } from "firebase/auth"
-import { getAuth, browserLocalPersistence, setPersistence } from "firebase/auth"
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { GoogleAuthProvider } from "firebase/auth";
+import {
+    getAuth,
+    browserLocalPersistence,
+    setPersistence,
+} from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -12,14 +16,14 @@ const firebaseConfig = {
     messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
     appId: import.meta.env.VITE_APP_ID,
     measurementId: import.meta.env.VITE_MEASUREMENT_ID,
-}
+};
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig)
+const app = initializeApp(firebaseConfig);
 
-export const auth = getAuth(app)
-setPersistence(auth, browserLocalPersistence).catch(console.error)
-export const provider = new GoogleAuthProvider()
-provider.addScope("profile")
-provider.addScope("email")
-export const db = getFirestore(app)
+export const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch(console.error);
+export const provider = new GoogleAuthProvider();
+provider.addScope("profile");
+provider.addScope("email");
+export const db = getFirestore(app);
