@@ -2,34 +2,39 @@ import { useState, useEffect } from "react"
 import {
     collection,
     query,
-    orderBy,
+    doc,
     onSnapshot,
-    limit,
     where,
     serverTimestamp,
     updateDoc,
     deleteDoc,
     addDoc,
-    setDoc,
 } from "firebase/firestore"
 import { db } from "../firebase"
+import { useContext } from "react"
+import { UserContext } from "../context/UserContext"
 
 function useFirestore(collectionName) {
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const { user } = useContext(UserContext)
 
     const collectionRef = collection(db, collectionName)
-    const queryRef = query(collectionRef, where("ownerId", "==", user.uid))
 
     useEffect(() => {
         const unsubscribe = onSnapshot(
-            queryRef,
+            query(
+                collection(db, collectionName),
+                where("ownerId", "==", user.uid),
+            ),
             (snapshot) => {
-                setData(
-                    snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
-                )
-                console.log("Дані успішно отримано")
+                const docs = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }))
+                setData(docs)
+                console.log("Дані успішно отримано", docs)
                 setLoading(false)
             },
             (error) => {
@@ -38,8 +43,8 @@ function useFirestore(collectionName) {
                 setLoading(false)
             },
         )
-        return () => unsubscribe
-    }, [])
+        return () => unsubscribe()
+    }, [collectionName, user.uid])
 
     const addData = async (data) => {
         try {
@@ -48,7 +53,7 @@ function useFirestore(collectionName) {
                 createdAt: serverTimestamp(),
                 ownerId: user.uid,
             })
-            console.log("Дані успішно додано")
+            console.log("Дані успішно додано", data)
         } catch (error) {
             console.log("Помилка при додаванні даних:" + error)
             setError(error)

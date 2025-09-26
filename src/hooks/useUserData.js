@@ -1,48 +1,54 @@
 import { useEffect, useState } from "react"
-import { doc, setDoc, onSnapshot } from "firebase/firestore"
+import { doc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore"
 import { db } from "../firebase"
-
+import { UserContext } from "../context/UserContext"
+import { useContext } from "react"
 export function useUserData() {
-    const [userData, setUserData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const newUserData = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        uid: user.uid,
-        createdAt: user.metadata.creationTimestamp,
-    }
+    const [userData, setUserData] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const { user } = useContext(UserContext)
+
     useEffect(() => {
-        const userDocRef = doc(db, "users", user.uid);
+        if (!user) return
+        const userDocRef = doc(db, "users", user.uid)
+        const newUserData = {
+            displayName: user.displayName || "Немає нікнейму",
+            email: user.email,
+            photoURL:
+                user.photoURL ||
+                "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+            uid: user.uid,
+            createdAt: serverTimestamp(),
+        }
         const unsubscribe = onSnapshot(userDocRef, async (doc) => {
             try {
                 if (doc.exists()) {
                     setUserData(doc.data())
                 } else {
-                    await setDoc(userDocRef, newUserData);
-                    setUserData(newUserData);
+                    await setDoc(userDocRef, newUserData)
+                    setUserData(newUserData)
                 }
             } catch (error) {
-                console.log("Помилка при отриманні даних:" + error);
-                setError(error);
+                console.log("Помилка при отриманні даних:" + error)
+                setError(error)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
         })
-        
+
         return () => unsubscribe()
     }, [])
 
     const updateUserData = async (data) => {
         try {
-            await setDoc(doc(db, "users", user.uid), data, { merge: true });
-            setUserData((prevData) => ({ ...prevData, ...data }));
+            await setDoc(doc(db, "users", user.uid), data, { merge: true })
+            setUserData((prevData) => ({ ...prevData, ...data }))
         } catch (error) {
-            console.log("Помилка при оновленні даних:" + error);
-            setError(error);
+            console.log("Помилка при оновленні даних:" + error)
+            setError(error)
         }
     }
 
-    return { userData, loading, error, updateUserData };
+    return { userData, loading, error, updateUserData }
 }
