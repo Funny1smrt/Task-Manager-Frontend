@@ -2,9 +2,11 @@ import useFirestore from "../hooks/useFirestore";
 import TaskItem from "./TaskItem";
 import {useContext} from "react";
 import { BlockContext } from "../context/BlockContext";
+import useQueryConditions from "../hooks/useQueryConditions";
 function TaskList() {
     const { activeBlock } = useContext(BlockContext);
-    const { data: tasks } = useFirestore("tasks");
+    const { conditions } = useQueryConditions("blockId", activeBlock);
+    const { data: tasks } = useFirestore("tasks", conditions);
 
     return (
         <section>

@@ -14,8 +14,7 @@ import {
 import { db } from "../firebase";
 import { useContext } from "react";
 import { UserContext } from "../context/UserContext";
-function useFirestore(collectionName) {
-
+function useFirestore(collectionName, conditions) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,8 +24,9 @@ function useFirestore(collectionName) {
         [collectionName],
     );
     const memoConditions = useMemo(() => {
-        return [where("ownerId", "==", user.uid)];
-    }, [user.uid]);
+        const safeConditions = Array.isArray(conditions) ? conditions : [conditions];
+        return [...safeConditions, where("ownerId", "==", user.uid)];
+    }, [user.uid, conditions]);
 
     useEffect(() => {
         if (!user?.uid) return;
