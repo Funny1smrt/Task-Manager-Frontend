@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+
 import {
     collection,
     query,
@@ -13,21 +14,27 @@ import {
 import { db } from "../firebase";
 import { useContext } from "react";
 import { UserContext } from "../context/UserContext";
-
 function useFirestore(collectionName) {
+
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { user } = useContext(UserContext);
-
-    const collectionRef = collection(db, collectionName);
+    const collectionRef = useMemo(
+        () => collection(db, collectionName),
+        [collectionName],
+    );
+    const memoConditions = useMemo(() => {
+        return [where("ownerId", "==", user.uid)];
+    }, [user.uid]);
 
     useEffect(() => {
+        if (!user?.uid) return;
+
+        const q = query(collectionRef, ...memoConditions);
+
         const unsubscribe = onSnapshot(
-            query(
-                collection(db, collectionName),
-                where("ownerId", "==", user.uid),
-            ),
+            q,
             (snapshot) => {
                 const docs = snapshot.docs.map((doc) => ({
                     id: doc.id,
@@ -43,8 +50,8 @@ function useFirestore(collectionName) {
                 setLoading(false);
             },
         );
-        return () => unsubscribe();
-    }, [collectionName, user.uid]);
+        return unsubscribe;
+    }, [collectionName, memoConditions, user?.uid, collectionRef]);
 
     const addData = async (data) => {
         try {
