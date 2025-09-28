@@ -24,9 +24,11 @@ function useFirestore(collectionName, conditions) {
         [collectionName],
     );
     const memoConditions = useMemo(() => {
-        const safeConditions = Array.isArray(conditions) ? conditions : [conditions];
+        const safeConditions = Array.isArray(conditions)
+            ? conditions
+            : [conditions];
         return [...safeConditions, where("ownerId", "==", user.uid)];
-    }, [user.uid, conditions]);
+    }, [conditions, user.uid]);
 
     useEffect(() => {
         if (!user?.uid) return;

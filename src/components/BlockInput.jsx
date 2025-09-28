@@ -26,9 +26,14 @@ function BlockInput() {
     };
     return (
         <section>
-            <input type="text" name="name" value={name || ""} onChange={(e) => setName(e.target.value)} placeholder="" />
+            <input
+                type="text"
+                name="name"
+                value={name || ""}
+                onChange={(e) => setName(e.target.value)}
+                placeholder=""
+            />
             <button onClick={handleAddBlock}>Додати</button>
-
         </section>
     );
 }

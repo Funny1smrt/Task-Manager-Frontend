@@ -1,6 +1,6 @@
 import useFirestore from "../hooks/useFirestore";
 import TaskItem from "./TaskItem";
-import {useContext} from "react";
+import { useContext } from "react";
 import { BlockContext } from "../context/BlockContext";
 import useQueryConditions from "../hooks/useQueryConditions";
 function TaskList() {
@@ -10,10 +10,8 @@ function TaskList() {
 
     return (
         <section>
-            <p>{activeBlock }</p>
-            {tasks
-                .filter((task) => task.blockId === activeBlock)
-                .map((task) => (
+            <p>{activeBlock}</p>
+            {tasks.map((task) => (
                 <TaskItem key={task.id} task={task} />
             ))}
         </section>
