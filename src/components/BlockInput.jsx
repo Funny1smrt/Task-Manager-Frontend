@@ -1,7 +1,9 @@
 import useFirestore from "../hooks/useFirestore";
-import { useState } from "react";
-import { UserContext } from "../context/UserContext";
-import { useContext } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "../context/context";
+import Input from "./basicsComponents/Input";
+import Button from "./basicsComponents/Button";
+
 function BlockInput() {
     const { addData: addBlock } = useFirestore("blocks");
     const [name, setName] = useState("");
@@ -26,14 +28,14 @@ function BlockInput() {
     };
     return (
         <section>
-            <input
+            <Input
                 type="text"
                 name="name"
-                value={name || ""}
-                onChange={(e) => setName(e.target.value)}
-                placeholder=""
+                text={name}
+                setText={setName}
+                placeholder="Введіть назву блоку"
             />
-            <button onClick={handleAddBlock}>Додати</button>
+            <Button text="Додати" onClick={handleAddBlock} name="addBlock" />
         </section>
     );
 }

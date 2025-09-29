@@ -1,10 +1,11 @@
-import TextTask from "./TextTask";
-function OlTask({ children }) {
+import Button from "../basicsComponents/Button";
+import Text from "../basicsComponents/Text";
+function OlTask({ task }) {
     return (
         <>
-            <ol>
-                <li>{children}</li>
-            </ol>
+            <li>
+                <Text t={task} />
+            </li>
         </>
     );
 }

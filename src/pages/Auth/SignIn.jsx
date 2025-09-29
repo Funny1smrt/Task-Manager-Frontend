@@ -1,9 +1,11 @@
 import { useState, useContext } from "react";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../../firebase";
-import { UserContext } from "../../context/UserContext";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
+import { UserContext } from "../../context/context";
 import { useNavigate } from "react-router-dom";
-
+import Input from "../../components/basicsComponents/Input";
+import Button from "../../components/basicsComponents/Button";
+import SignWithGoogleButton from "../../components/basicsComponents/AuthButtons/SignWithGoogleButton";
 function SignIn() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -25,39 +27,29 @@ function SignIn() {
         }
     };
 
-    const handleSignInWithGoogle = async () => {
-        try {
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            setUser(user);
-            console.log("Signed in successfully");
-            navigate("/"); // <-- також після входу через Google
-        } catch (error) {
-            console.error("Sign-in error:", error.code, error.message);
-        }
-    };
-
     return (
         <main>
-            <input
+            <Input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
             />
-            <input
+            <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <button onClick={handleSignInWithEmail}>Увійти</button>
-            <button onClick={handleSignInWithGoogle}>
-                Увійти через Google
-            </button>
+            <Button
+                text="Увійти"
+                onClick={handleSignInWithEmail}
+                name="signInWithEmail"
+            />
+            <SignWithGoogleButton />
             <hr />
             <p>
-                Немає аккаунту? <a href="/sign-up">Зареєструватися</a>
+                Немає аккаунту? <Link to="/sign-up">Зареєструватися</Link>
             </p>
         </main>
     );

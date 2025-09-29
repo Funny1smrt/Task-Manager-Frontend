@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { doc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
-import { UserContext } from "../context/UserContext";
-import { useContext } from "react";
+import { UserContext } from "../context/context";
+
 export function useUserData() {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);

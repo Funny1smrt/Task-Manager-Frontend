@@ -1,15 +1,19 @@
 import { useState } from "react";
-function CheckboxTask({ task, updateTask, children }) {
+import Input from "./Input";
+import useFirestore from "../../hooks/useFirestore";
+function Checkbox({ t, children }) {
+    const { updateData: updateTask } = useFirestore("tasks");
     const [checked, setChecked] = useState(false);
     const handleUpdateTask = () => {
         setChecked(!checked);
 
-        updateTask(task.id, { complete: !task.complete });
+        updateTask(t.id, { complete: !t?.complete });
     };
     return (
         <>
             <input
                 type="checkbox"
+                name="checked"
                 checked={checked}
                 onChange={handleUpdateTask}
             />
@@ -18,4 +22,4 @@ function CheckboxTask({ task, updateTask, children }) {
     );
 }
 
-export default CheckboxTask;
+export default Checkbox;

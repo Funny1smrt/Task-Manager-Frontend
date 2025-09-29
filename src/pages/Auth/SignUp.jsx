@@ -1,10 +1,10 @@
 import { useState, useContext } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../firebase";
-
-import { UserContext } from "../../context/UserContext";
+import { UserContext } from "../../context/context";
 import { useNavigate } from "react-router-dom";
-
+import Input from "../../components/basicsComponents/Input";
+import Button from "../../components/basicsComponents/Button";
 function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -47,26 +47,32 @@ function SignUp() {
     return (
         <main>
             <h2>Sign Up</h2>
-            <input
+            <Input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
             />
-            <input
+            <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <button onClick={handleSignUpWithEmail}>Зареєструватися</button>
-            <button onClick={handleSignInWithGoogle}>
-                Увійти через Google
-            </button>
+            <Button
+                text="Зареєструватися"
+                onClick={handleSignUpWithEmail}
+                name="signUpWithEmail"
+            />
+            <Button
+                text="Увійти через Google"
+                onClick={handleSignInWithGoogle}
+                name="signInWithGoogle"
+            />
             <hr />
 
             <p>
-                Вже зареєстровані? <a href="/sign-in">Увійти</a>
+                Вже зареєстровані? <Link to="/sign-in">Увійти</Link>
             </p>
         </main>
     );

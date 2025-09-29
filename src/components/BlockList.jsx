@@ -1,12 +1,20 @@
 import useFirestore from "../hooks/useFirestore";
-import BlockTasks from "./BlockTasks";
+import { Link } from "react-router-dom";
 function BlockList() {
     const { data: blocks } = useFirestore("blocks");
+
     return (
         <section>
-            {blocks.map((block) => (
-                <BlockTasks key={block.id} block={block} />
-            ))}
+            <h2>Мої блоки</h2>
+            <ul>
+                {blocks.map((block) => (
+                    <Link to={`/block/${block.id}`} key={block.id}>
+                        <li style={{ backgroundColor: block.color }}>
+                            {block.nameBlock}
+                        </li>
+                    </Link>
+                ))}
+            </ul>
         </section>
     );
 }

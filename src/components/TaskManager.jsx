@@ -1,11 +1,9 @@
 import useFirestore from "../hooks/useFirestore";
 import { useContext } from "react";
-import { UserContext } from "../context/UserContext";
-import { BlockContext } from "../context/BlockContext";
-
-function TaskManager() {
+import { UserContext, BlockContext } from "../context/context";
+import Button from "./basicsComponents/Button";
+function TaskManager({ blockId }) {
     const { addData: addTask } = useFirestore("tasks");
-    const { activeBlock } = useContext(BlockContext);
     const { user } = useContext(UserContext);
 
     const typeTasks = {
@@ -20,18 +18,29 @@ function TaskManager() {
         // table: "table",
     };
     const handleAddTask = (type) => {
-        addTask({
+        const newTask = {
             author: user.displayName || user.email,
-            blockId: activeBlock,
+            blockId: blockId,
             type: typeTasks[type],
-        });
+            text: "",
+        };
+
+        if (type === "checkbox") {
+            newTask.complete = false;
+        }
+
+        addTask(newTask);
     };
+
     return (
         <section>
             {Object.keys(typeTasks).map((type) => (
-                <button key={type} onClick={() => handleAddTask(type)}>
-                    {type}
-                </button>
+                <Button
+                    text={type}
+                    onClick={() => handleAddTask(type)}
+                    name={type}
+                    key={type}
+                />
             ))}
         </section>
     );

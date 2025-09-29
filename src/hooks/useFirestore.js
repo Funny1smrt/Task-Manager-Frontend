@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { useContext } from "react";
-import { UserContext } from "../context/UserContext";
+import { UserContext } from "../context/context";
 function useFirestore(collectionName, conditions) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,11 +24,18 @@ function useFirestore(collectionName, conditions) {
         [collectionName],
     );
     const memoConditions = useMemo(() => {
+        if (!user?.uid) {
+            return [];
+        }
+
         const safeConditions = Array.isArray(conditions)
-            ? conditions
-            : [conditions];
+            ? conditions.filter(Boolean)
+            : conditions
+              ? [conditions]
+              : [];
+
         return [...safeConditions, where("ownerId", "==", user.uid)];
-    }, [conditions, user.uid]);
+    }, [conditions, user?.uid]);
 
     useEffect(() => {
         if (!user?.uid) return;

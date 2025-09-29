@@ -1,9 +1,9 @@
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../../firebase";
 import { useContext } from "react";
-import { UserContext } from "../context/UserContext";
+import { UserContext } from "../../../context/context";
 import { useNavigate } from "react-router-dom";
-
+import Button from "../Button";
 export default function LogoutButton() {
     const { setUser } = useContext(UserContext);
     const navigate = useNavigate();
@@ -18,5 +18,5 @@ export default function LogoutButton() {
         }
     };
 
-    return <button onClick={handleLogout}>Log Out</button>;
+    return <Button text="Log Out" onClick={handleLogout} name="logout" />;
 }

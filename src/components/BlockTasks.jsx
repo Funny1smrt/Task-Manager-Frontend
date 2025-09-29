@@ -1,22 +1,14 @@
-import TaskInput from "./TaskInput";
 import TaskList from "./TaskList";
-import { useContext } from "react";
-import { BlockContext } from "../context/BlockContext";
+import { useParams } from "react-router-dom";
 import TaskManager from "./TaskManager";
-function BlockTasks({ block }) {
-    const { activeBlock, setActiveBlock } = useContext(BlockContext);
+function BlockTasks() {
+    const { id } = useParams(); // отримуємо blockId з URL
     return (
-        <section
-            style={{ backgroundColor: block.color }}
-            onClick={() => setActiveBlock(block.id)}
-        >
-            <h2>{block.nameBlock}</h2>
-            {activeBlock === block.id && (
-                <>
-                    <TaskManager />
-                    <TaskList />
-                </>
-            )}
+        <section>
+            <h2>Блок {id}</h2>
+            {/* Тут уже твій TaskList, який бере activeBlock = id */}
+            <TaskManager blockId={id} />
+            <TaskList blockId={id} />
         </section>
     );
 }
