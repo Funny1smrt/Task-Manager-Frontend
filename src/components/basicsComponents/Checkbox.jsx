@@ -1,24 +1,33 @@
-import { useState } from "react";
-import Input from "./Input";
-import useFirestore from "../../hooks/useFirestore";
-function Checkbox({ t, children }) {
-    const { updateData: updateTask } = useFirestore("tasks");
-    const [checked, setChecked] = useState(false);
-    const handleUpdateTask = () => {
-        setChecked(!checked);
+import TextItem from "./TextItem";
+import useList from "../../hooks/useList";
+function Checkbox({ item }) {
+    const isChecked = item?.complete || false;
+    const { handleUpdateListItem } = useList();
 
-        updateTask(t.id, { complete: !t?.complete });
+    const handleUpdateComplete = () => {
+        const newState = !isChecked;
+        handleUpdateListItem(item, newState, "complete");
     };
     return (
-        <>
+        <div>
             <input
                 type="checkbox"
                 name="checked"
-                checked={checked}
-                onChange={handleUpdateTask}
+                checked={isChecked}
+                onChange={handleUpdateComplete}
             />
-            <span>{children}</span>
-        </>
+            <span
+                style={{
+                    // Додайте тут стилі для візуального відображення статусу
+                    textDecoration: isChecked ? "line-through" : "none",
+                    opacity: isChecked ? 0.6 : 1,
+                    marginLeft: "0.5rem", // Відступ від чекбоксу
+                    flexGrow: 1, // Дозволяє тексту займати весь доступний простір
+                }}
+            >
+                <TextItem item={item} />
+            </span>
+        </div>
     );
 }
 

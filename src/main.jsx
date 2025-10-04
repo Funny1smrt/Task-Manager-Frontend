@@ -2,7 +2,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserProvider.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import BlockTasks from "./components/BlockTasks.jsx";
+import Block from "./components/Block.jsx";
 import App from "./App.jsx";
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
@@ -28,7 +28,7 @@ ReactDOM.createRoot(root).render(
                     path="/block/:id"
                     element={
                         <ProtectedRoute>
-                            <BlockTasks />
+                            <Block />
                         </ProtectedRoute>
                     }
                 />
