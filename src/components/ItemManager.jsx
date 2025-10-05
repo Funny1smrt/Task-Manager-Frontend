@@ -1,8 +1,8 @@
-import useFirestore from "../hooks/useFirestore";
 import Button from "./basicsComponents/Button";
-import { arrayUnion } from "firebase/firestore";
+import { useContext } from "react";
+import { DraftContext } from "../context/context";
 function ItemManager({ note }) {
-    const { updateData: updateNote } = useFirestore("notes");
+    const { setDraft } = useContext(DraftContext);
 
     const typeNotes = {
         text: "text",
@@ -15,20 +15,25 @@ function ItemManager({ note }) {
         // link: "link",
         // table: "table",
     };
-    const handleAddListItem = (type) => {
-        const newListItem = {
+
+    const handleAddDraftItem = (type) => {
+        const newDraftItem = {
             itemId: crypto.randomUUID(), // Використовуємо UUID для унікального ідентифікатора
             type: typeNotes[type],
             text: "",
+            isDraft: true,
+            noteId: note?.id,
         };
 
         if (type === "checkbox") {
-            newListItem.complete = false;
+            newDraftItem.complete = false;
         }
 
-        updateNote(note?.id, {
-            list: arrayUnion(newListItem),
-        });
+        setDraft(prev => ({
+            ...prev,
+            [note.id]: [...(prev[note.id] || []), newDraftItem]
+        }));
+
     };
 
     return (
@@ -36,7 +41,7 @@ function ItemManager({ note }) {
             {Object.keys(typeNotes).map((type) => (
                 <Button
                     text={type}
-                    onClick={() => handleAddListItem(type)}
+                    onClick={() => handleAddDraftItem(type)}
                     name={type}
                     key={type}
                 />

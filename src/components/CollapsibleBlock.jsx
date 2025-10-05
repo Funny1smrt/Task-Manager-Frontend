@@ -2,7 +2,7 @@ import { useState } from "react";
 
 function CollapsibleBlock({ title, children, progress }) {
     // Стан, який відстежує, чи блок відкритий (true) або закритий (false)
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     // Функція, що перемикає стан
     const toggleCollapse = () => {
         setIsOpen(!isOpen);

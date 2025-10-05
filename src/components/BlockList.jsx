@@ -1,7 +1,7 @@
-import useFirestore from "../hooks/useFirestore";
+import useOnSnapshotFirestore from "../hooks/useOnSnapshotFirestore";
 import { Link } from "react-router-dom";
 function BlockList() {
-    const { data: blocks } = useFirestore("blocks");
+    const { data: blocks } = useOnSnapshotFirestore("blocks", "*");
 
     return (
         <section>

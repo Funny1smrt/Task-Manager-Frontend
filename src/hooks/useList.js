@@ -1,31 +1,41 @@
 import useFirestore from "./useFirestore";
-
+import useOnSnapshotFirestore from "./useOnSnapshotFirestore";
+import { useContext } from "react";
+import { DraftContext } from "../context/context";
 function useList() {
-    const { data: notes, updateData: updateNote } = useFirestore("notes");
+    const { updateData: updateNote } = useFirestore("notes");
+    const { data: notes } = useOnSnapshotFirestore("notes", "*");
+    const { removeDraftItem } = useContext(DraftContext);
     const handleUpdateListItem = (item, data, dataType) => {
         const currentNote = notes?.find((n) =>
             n?.list?.some((l) => l.itemId === item.itemId),
         );
-        if (!currentNote) {
-            console.error(
-                "Помилка: Батьківський документ не знайдено для елемента:",
-                item.itemId,
-            );
+
+        const targetNote =
+            currentNote || notes?.find((n) => n.id === item.noteId);
+        if (!targetNote) {
+            console.error("❌ Не знайдено нотатку для елемента:", notes, item);
             return;
         }
-        const updatedList = currentNote.list.map(
-            (i) =>
-                // ВИПРАВЛЕНО: Порівнюємо i.itemId з targetitemId
-                i.itemId === item.itemId
-                    ? { ...i, [dataType]: data } // Оновлюємо текст
-                    : i, // Залишаємо без змін
-        );
 
-        if (data !== item[dataType]) {
-            updateNote(currentNote.id, {
-                list: updatedList,
-            });
+        let updatedList;
+        if (currentNote) {
+            // 🔄 Оновлення існуючого елемента
+            updatedList = currentNote.list.map((i) =>
+                i.itemId === item.itemId
+                    ? { ...i, [dataType]: data, isDraft: false }
+                    : i,
+            );
+        } else {
+            // 🆕 Додавання нового елемента
+            updatedList = [
+                ...(targetNote.list || []),
+                { ...item, [dataType]: data, isDraft: false },
+            ];
+            removeDraftItem(targetNote.id, item.itemId);
         }
+
+        updateNote(targetNote.id, { list: updatedList });
     };
 
     /**

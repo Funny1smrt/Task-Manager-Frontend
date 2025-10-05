@@ -3,14 +3,17 @@ import Ul from "./basicsComponents/Ul";
 import Checkbox from "./basicsComponents/Checkbox";
 import TextItem from "./basicsComponents/TextItem";
 import ItemManager from "./ItemManager";
-import useFirestore from "../hooks/useFirestore";
+import useOnSnapshotFirestore from "../hooks/useOnSnapshotFirestore";
 import useQueryConditions from "../hooks/useQueryConditions";
 import useList from "../hooks/useList";
 import CollapsibleBlock from "./CollapsibleBlock";
 import TaskProgress from "./TaskProgress";
+import { useContext } from "react";
+import { DraftContext } from "../context/context";
 function NoteList({ blockId }) {
     const { conditions } = useQueryConditions("blockId", blockId);
-    const { data: notes } = useFirestore("notes", conditions);
+    const { data: notes } = useOnSnapshotFirestore("notes", conditions);
+    const { draft } = useContext(DraftContext);
     const { groupItemsByAdjacency } = useList();
 
     // Функція, яка обирає компонент для рендерингу ГРУПИ
@@ -53,7 +56,13 @@ function NoteList({ blockId }) {
                 >
                     <ItemManager note={note} />
 
-                    {/* ✅ ВИКОРИСТАННЯ НОВОЇ ЛОГІКИ ГРУПУВАННЯ */}
+                    {groupItemsByAdjacency(draft[note.id] || []).map((group, index) => (
+                        <GroupRenderer
+                            key={index}
+                            group={group}
+                            index={index}
+                        />
+                    ))}
                     {groupItemsByAdjacency(note?.list).map((group, index) => (
                         <GroupRenderer
                             key={index}
@@ -63,6 +72,7 @@ function NoteList({ blockId }) {
                     ))}
                 </CollapsibleBlock>
             ))}
+            
         </section>
     );
 }

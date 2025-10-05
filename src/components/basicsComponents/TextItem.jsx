@@ -40,14 +40,16 @@ function TextItem({ item }) {
         if (e.key === "Enter" && !e.shiftKey) {
             // Додаємо перевірку на Shift+Enter, щоб дозволити новий рядок
             e.preventDefault();
-            handleUpdateListItem(item, text, "text");
-            setActiveUpdate(false);
+            if (activeUpdate && text !== item.text) {
+                handleUpdateListItem(item, text, "text");
+            }
+            setTimeout(() => setActiveUpdate(false), 100);
         }
     };
 
     // Обробник втрати фокусу
     const handleBlur = () => {
-        if (activeUpdate) {
+        if (activeUpdate && text !== item.text) {
             handleUpdateListItem(item, text, "text");
         }
         setActiveUpdate(false);
