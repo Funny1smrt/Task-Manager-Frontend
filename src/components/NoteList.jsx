@@ -6,7 +6,8 @@ import ItemManager from "./ItemManager";
 import useFirestore from "../hooks/useFirestore";
 import useQueryConditions from "../hooks/useQueryConditions";
 import useList from "../hooks/useList";
-
+import CollapsibleBlock from "./CollapsibleBlock";
+import TaskProgress from "./TaskProgress";
 function NoteList({ blockId }) {
     const { conditions } = useQueryConditions("blockId", blockId);
     const { data: notes } = useFirestore("notes", conditions);
@@ -45,7 +46,11 @@ function NoteList({ blockId }) {
     return (
         <section>
             {notes?.map((note) => (
-                <div key={note?.id}>
+                <CollapsibleBlock
+                    key={note?.id}
+                    title={note?.title}
+                    progress={<TaskProgress note={note} />}
+                >
                     <ItemManager note={note} />
 
                     {/* ✅ ВИКОРИСТАННЯ НОВОЇ ЛОГІКИ ГРУПУВАННЯ */}
@@ -56,11 +61,7 @@ function NoteList({ blockId }) {
                             index={index}
                         />
                     ))}
-
-                    <p>
-                        ..........................................................................
-                    </p>
-                </div>
+                </CollapsibleBlock>
             ))}
         </section>
     );
