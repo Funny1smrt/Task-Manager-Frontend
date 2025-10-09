@@ -7,34 +7,32 @@ import Block from "./components/Block.jsx";
 import App from "./App.jsx";
 import SignIn from "./pages/Auth/SignIn.jsx";
 import SignUp from "./pages/Auth/SignUp.jsx";
+import AccountPage from "./pages/AccountPage.jsx";
+import DashboardLayout from "./pages/dashbord/DashboardLayout.jsx";
 
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
     <BrowserRouter>
-        
+
         <UserProvider>
             <DraftProvider>
                 <Routes>
                     {/* Головна сторінка з блоками */}
                     <Route
-                        path="/"
                         element={
                             <ProtectedRoute>
-                                <App />
+                                <DashboardLayout />
                             </ProtectedRoute>
                         }
-                    />
+                    >
+                        <Route path="/" element={<App />} />
+                        {/* Сторінка конкретного блоку */}
+                        <Route path="/block/:id" element={<Block />} />
 
-                    {/* Сторінка конкретного блоку */}
-                    <Route
-                        path="/block/:id"
-                        element={
-                            <ProtectedRoute>
-                                <Block />
-                            </ProtectedRoute>
-                        }
-                    />
+                        {/* Сторінка аккаунту */}
+                        <Route path="/account" element={<AccountPage />} />
+                    </Route>
 
                     {/* Авторизація */}
                     <Route path="/sign-in" element={<SignIn />} />

@@ -12,7 +12,7 @@ export function UserProvider({ children }) {
             if (currentUser) {
                 // Підставляємо дефолтні значення, щоб не було undefined
                 const safeUser = {
-                    displayName: currentUser.displayName || "",
+                    displayName: currentUser.displayName || currentUser.email,
                     email: currentUser.email,
                     photoURL: currentUser.photoURL || "",
                     uid: currentUser.uid,

@@ -1,9 +1,10 @@
 import { useState, useContext } from "react";
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider } from "../../firebase";
+import { createUserWithEmailAndPassword} from "firebase/auth";
+import { auth } from "../../firebase";
 import { UserContext } from "../../context/context";
 import { useNavigate, Link } from "react-router-dom";
-import Input from "../../components/basicsComponents/Input";
+import SignWithAnonymously from "../../components/basicsComponents/AuthButtons/SignWithAnonymously";
+import SignWithGoogleButton from "../../components/basicsComponents/AuthButtons/SignWithGoogleButton";
 import Button from "../../components/basicsComponents/Button";
 function SignUp() {
     const [email, setEmail] = useState("");
@@ -32,17 +33,7 @@ function SignUp() {
             }
         }
     };
-    const handleSignInWithGoogle = async () => {
-        try {
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            setUser(user);
-            console.log("Signed in successfully");
-            navigate("/"); // <-- також після входу через Google
-        } catch (error) {
-            console.error("Sign-in error:", error.code, error.message);
-        }
-    };
+
 
     return (
         <main>
@@ -64,11 +55,9 @@ function SignUp() {
                 onClick={handleSignUpWithEmail}
                 name="signUpWithEmail"
             />
-            <Button
-                text="Увійти через Google"
-                onClick={handleSignInWithGoogle}
-                name="signInWithGoogle"
-            />
+            <SignWithAnonymously />
+            <SignWithGoogleButton />
+
             <hr />
 
             <p>
