@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../firebase";
 import { UserContext } from "../../context/context";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Input from "../../components/basicsComponents/Input";
 import Button from "../../components/basicsComponents/Button";
 function SignUp() {
@@ -47,13 +47,13 @@ function SignUp() {
     return (
         <main>
             <h2>Sign Up</h2>
-            <Input
+            <input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
             />
-            <Input
+            <input
                 type="password"
                 placeholder="Password"
                 value={password}

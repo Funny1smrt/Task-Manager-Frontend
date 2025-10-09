@@ -25,8 +25,12 @@ function TaskProgress({ note }) {
         );
 
         const totalTasks = checkableItems.length;
-
-        if (totalTasks !== 0) {
+        if (totalTasks === 0) {
+            setIsProgress(false);
+            setValue(0);
+            return;
+        }
+        if (totalTasks !== 0 && isTask) {
             setIsProgress(true);
         }
 
@@ -45,7 +49,7 @@ function TaskProgress({ note }) {
         // 4. Оновлюємо стан
 
         setValue(newProgressValue);
-    }, [note?.list]); // 💡 Залежність лише від note?.list
+    }, [note?.list, isTask]); // 💡 Залежність лише від note?.list
 
     const handleTask = (note) => {
         const listItems = note?.list || [];
@@ -60,9 +64,9 @@ function TaskProgress({ note }) {
 
         const totalTasks = checkableItems.length;
 
-        if (isTask !== note?.isTask && totalTasks !== 0) {
+        if (isTask === false && totalTasks !== 0) {
             updateNote(note?.id, {
-                isTask: !isTask,
+                isTask: true,
             });
         }
     };
@@ -77,9 +81,9 @@ function TaskProgress({ note }) {
 
             {isProgress && (
                 <div>
-                    <progress value={value} min="0" max="100"></progress>
+                    <progress value={value||0} min="0" max="100"></progress>
 
-                    <span>{value}%</span>
+                    <span>{value||0}%</span>
                 </div>
             )}
 

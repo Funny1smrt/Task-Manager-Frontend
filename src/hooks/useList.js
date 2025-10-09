@@ -17,7 +17,10 @@ function useList() {
             console.error("❌ Не знайдено нотатку для елемента:", notes, item);
             return;
         }
-
+        if(data === "") {
+            removeListItem(targetNote.id, item.itemId);
+            return;
+        }
         let updatedList;
         if (currentNote) {
             // 🔄 Оновлення існуючого елемента
@@ -74,6 +77,15 @@ function useList() {
         }
 
         return groups;
+    };
+    const removeListItem = (noteId, itemId) => {
+        const targetNote = notes?.find((n) => n.id === noteId);
+        if (!targetNote) {
+            console.error("❌ Не знайдено нотатку для елемента");
+            return;
+        }
+        const updatedList = targetNote.list.filter((i) => i.itemId !== itemId);
+        updateNote(targetNote.id, { list: updatedList });
     };
 
     return { handleUpdateListItem, groupItemsByAdjacency };

@@ -5,8 +5,8 @@ import { DraftProvider } from "./context/DraftProvider.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Block from "./components/Block.jsx";
 import App from "./App.jsx";
-import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
+import SignIn from "./pages/Auth/SignIn.jsx";
+import SignUp from "./pages/Auth/SignUp.jsx";
 
 const root = document.getElementById("root");
 

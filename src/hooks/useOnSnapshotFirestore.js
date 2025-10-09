@@ -48,6 +48,7 @@ function useOnSnapshotFirestore(collectionName, conditions = []) {
                     ...doc.data(),
                 }));
                 setData(docs);
+                console.clear();
                 console.log(
                     `Дані з колекції ${collectionName} успішно отримано. Кількість документів: ${docs.length}`,
                 );
