@@ -20,6 +20,8 @@ function SignIn() {
                 password,
             );
             setUser(result.user);
+            const token = await result.user.getIdToken();
+            localStorage.setItem('authToken', token);
             console.log("Signed in successfully");
             navigate("/"); // автоматично переходимо в додаток
         } catch (error) {

@@ -13,6 +13,8 @@ function SignWithGoogleButton() {
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
+            const token = await user.getIdToken();
+            localStorage.setItem('authToken', token);
             setUser(user);
             console.log("Signed in successfully");
             navigate("/"); // <-- також після входу через Google

@@ -1,7 +1,7 @@
-import useOnSnapshotFirestore from "../hooks/useOnSnapshotFirestore";
+import useApiData from "../hooks/useApiData";
 import { Link } from "react-router-dom";
 function BlockList() {
-    const { data: blocks } = useOnSnapshotFirestore("blocks", "*");
+    const { data: blocks } = useApiData("/blocks", []);
 
     return (
         <section>

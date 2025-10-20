@@ -13,6 +13,8 @@ function SignWithAnonymously() {
         try {
             const result = await signInAnonymously(auth);
             const user = result.user;
+            const token = await user.getIdToken();
+            localStorage.setItem('authToken', token);
             setUser(user);
             console.log("Signed in successfully");
             navigate("/");

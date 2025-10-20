@@ -1,6 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { doc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase";
+import useApiData from "./useApiData";
 import { UserContext } from "../context/context";
 
 export function useUserData() {
@@ -8,10 +7,10 @@ export function useUserData() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { user } = useContext(UserContext);
-
+    const { sendRequest } = useApiData("/users");
     useEffect(() => {
         if (!user) return;
-        const userDocRef = doc(db, "users", user.uid);
+
         const newUserData = {
             displayName: user.displayName || "Немає нікнейму",
             email: user.email,
@@ -21,32 +20,19 @@ export function useUserData() {
             uid: user.uid,
             createdAt: serverTimestamp(),
         };
-        const unsubscribe = onSnapshot(userDocRef, async (doc) => {
-            try {
-                if (doc.exists()) {
-                    setUserData(doc.data());
-                } else {
-                    await setDoc(userDocRef, newUserData);
-                    setUserData(newUserData);
-                }
-            } catch (error) {
-                console.log("Помилка при отриманні даних:" + error);
-                setError(error);
-            } finally {
-                setLoading(false);
-            }
-        });
+        const unsubscribe = 
 
         return () => unsubscribe();
     }, []);
 
-    const updateUserData = async (data) => {
+    const updateUserData = async (id,data) => {
         try {
-            await setDoc(doc(db, "users", user.uid), data, { merge: true });
-            setUserData((prevData) => ({ ...prevData, ...data }));
+            await sendRequest("PUT", `/users/${id}`, data);
+            console.log("Дані успішно оновлено");
         } catch (error) {
-            console.log("Помилка при оновленні даних:" + error);
+            console.error("Помилка при оновленні даних:", error);
             setError(error);
+            throw error;
         }
     };
 

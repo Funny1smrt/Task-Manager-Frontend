@@ -1,12 +1,11 @@
 import { UserContext } from "../context/context";
 import { useContext } from "react";
-import useOnSnapshotFirestore from "../hooks/useOnSnapshotFirestore";
 import LogoutButton from "../components/basicsComponents/AuthButtons/LogoutButton";
-
+import useApiData from "../hooks/useApiData";
 function AccountPage() {
     const { user } = useContext(UserContext);
-    const { data: notes } = useOnSnapshotFirestore("notes", "*");
-    const { data: blocks } = useOnSnapshotFirestore("blocks", "*");
+    const { data: notes } = useApiData("/notes");
+    const { data: blocks } = useApiData("/blocks");
     return (
         <main>
             <h1>{user.displayName||"Немає нікнейму"}</h1>

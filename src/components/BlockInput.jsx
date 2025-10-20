@@ -1,11 +1,12 @@
-import useFirestore from "../hooks/useFirestore";
+import useApiData from "../hooks/useApiData";
 import { useState, useContext, useMemo } from "react";
 import { UserContext } from "../context/context";
 import Input from "./basicsComponents/Input";
 import Button from "./basicsComponents/Button";
 
 function BlockInput() {
-    const { addData: addBlock } = useFirestore("blocks", "*");
+    const { refetch, sendRequest } = useApiData('/blocks', []);
+
     const [name, setName] = useState("");
     const { user } = useContext(UserContext);
 
@@ -18,14 +19,19 @@ function BlockInput() {
         return color;
     }, []);
 
-    const handleAddBlock = () => {
-        addBlock({
-            nameBlock: name.toString(),
-            author: user.displayName || user.email,
-            color: randomColor,
-        }).then(() =>
-        setName("")
-        );
+    const handleAddBlock = async () => {
+        try {
+            await sendRequest('POST', `/blocks`, {
+                nameBlock: name.toString(),
+                author: user.displayName || user.email,
+                color: randomColor
+            });
+            // Після успішного додавання оновлюємо список
+            refetch();
+            setName("");
+        } catch (err) {
+            alert('Помилка при додаванні блоку!', err);
+        }
     };
     return (
         <section>

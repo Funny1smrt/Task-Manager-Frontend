@@ -22,6 +22,8 @@ function SignUp() {
             );
             // Оновлюємо контекст
             setUser(result.user);
+            const token = await result.user.getIdToken();
+            localStorage.setItem('authToken', token);
             // Переходимо на захищену сторінку
             navigate("/");
             console.log("User registered successfully");
