@@ -22,7 +22,7 @@ function SignIn() {
             setUser(result.user);
             const token = await result.user.getIdToken();
             localStorage.setItem('authToken', token);
-            console.log("Signed in successfully");
+            console.log("Signed in successfully", token);
             navigate("/"); // автоматично переходимо в додаток
         } catch (error) {
             console.error("Sign-in error:", error.code, error.message);

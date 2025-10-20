@@ -1,10 +1,8 @@
-import useFirestore from "./useFirestore";
-import useOnSnapshotFirestore from "./useOnSnapshotFirestore";
+import useApiData from "../hooks/useApiData";
 import { useContext } from "react";
 import { DraftContext } from "../context/context";
 function useList() {
-    const { updateData: updateNote } = useFirestore("notes");
-    const { data: notes } = useOnSnapshotFirestore("notes", "*");
+    const { data: notes, updateNote } = useApiData("/notes", []);
     const { removeDraftItem } = useContext(DraftContext);
     const handleUpdateListItem = (item, data, dataType) => {
         const currentNote = notes?.find((n) =>

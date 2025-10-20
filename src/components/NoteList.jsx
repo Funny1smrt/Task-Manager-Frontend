@@ -3,16 +3,14 @@ import Ul from "./basicsComponents/Ul";
 import Checkbox from "./basicsComponents/Checkbox";
 import TextItem from "./basicsComponents/TextItem";
 import ItemManager from "./ItemManager";
-import useOnSnapshotFirestore from "../hooks/useOnSnapshotFirestore";
-import useQueryConditions from "../hooks/useQueryConditions";
+import useApiData from "../hooks/useApiData";
 import useList from "../hooks/useList";
 import CollapsibleBlock from "./CollapsibleBlock";
 import TaskProgress from "./TaskProgress";
 import { useContext } from "react";
 import { DraftContext } from "../context/context";
-function NoteList({ blockId }) {
-    const { conditions } = useQueryConditions("blockId", blockId);
-    const { data: notes } = useOnSnapshotFirestore("notes", conditions);
+function NoteList() {
+    const { data: notes } = useApiData("/notes", []);
     const { draft } = useContext(DraftContext);
     const { groupItemsByAdjacency } = useList();
 
@@ -50,13 +48,13 @@ function NoteList({ blockId }) {
         <section>
             {notes?.map((note) => (
                 <CollapsibleBlock
-                    key={note?.id}
+                    key={note?._id}
                     title={note?.title}
                     progress={<TaskProgress note={note} />}
                 >
                     <ItemManager note={note} />
 
-                    {groupItemsByAdjacency(draft[note.id] || []).map((group, index) => (
+                    {groupItemsByAdjacency(draft[note._id] || []).map((group, index) => (
                         <GroupRenderer
                             key={index}
                             group={group}

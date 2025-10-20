@@ -2,7 +2,7 @@ import Button from "./basicsComponents/Button";
 import { useContext } from "react";
 import { DraftContext } from "../context/context";
 function ItemManager({ note }) {
-    const { handleAddDraftItem } = useContext(DraftContext);
+    const { addDraftItem } = useContext(DraftContext);
 
     const typeNotes = {
         text: "text",
@@ -21,12 +21,11 @@ function ItemManager({ note }) {
     return (
         <section>
             {Object.keys(typeNotes).map((type) => (
-                <Button
-                    text={type}
-                    onClick={() => handleAddDraftItem(note, typeNotes, type)}
+                <button
+                    onClick={() => addDraftItem(note, typeNotes, type)}
                     name={type}
                     key={type}
-                />
+                >{type}</button>
             ))}
         </section>
     );

@@ -1,11 +1,9 @@
-import useApiData from "../hooks/useApiData";
 import { useState, useContext, useMemo } from "react";
 import { UserContext } from "../context/context";
 import Input from "./basicsComponents/Input";
 import Button from "./basicsComponents/Button";
 
-function BlockInput() {
-    const { refetch, sendRequest } = useApiData('/blocks', []);
+function BlockInput({ sendRequest }) {
 
     const [name, setName] = useState("");
     const { user } = useContext(UserContext);
@@ -26,8 +24,6 @@ function BlockInput() {
                 author: user.displayName || user.email,
                 color: randomColor
             });
-            // Після успішного додавання оновлюємо список
-            refetch();
             setName("");
         } catch (err) {
             alert('Помилка при додаванні блоку!', err);
@@ -42,7 +38,9 @@ function BlockInput() {
                 setChange={setName}
                 placeholder="Введіть назву блоку"
             />
-            <Button text="Додати" onClick={handleAddBlock} name="addBlock" />
+            <button onClick={handleAddBlock} name="addBlock">
+                Додати блок
+            </button>
         </section>
     );
 }

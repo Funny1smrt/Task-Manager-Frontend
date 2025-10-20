@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios"; // Або вбудований fetch
+import axios from "axios";
 
 /**
  * Custom Hook для отримання даних з API
@@ -10,96 +10,132 @@ const useApiData = (endpoint, initialData = null) => {
     const [data, setData] = useState(initialData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const BASE_URL = "http://localhost:5000/api"; // Замініть на свій URL бекенду
+    // 💡 КЛЮЧОВИЙ ЕЛЕМЕНТ: Стан-тригер для примусового оновлення
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    const BASE_URL = "http://localhost:5000/api";
 
     const getAuthConfig = () => {
-        const token = localStorage.getItem("authToken"); // Отримання токена
+        const token = localStorage.getItem("authToken");
         if (token) {
             return {
                 headers: {
-                    // Формат має бути 'Bearer [TOKEN]', як очікує ваш бекенд
                     Authorization: `Bearer ${token}`,
                 },
             };
         }
-        return {}; // Повертаємо пустий об'єкт, якщо токена немає
+        return {};
     };
-    // Функція для отримання даних
+
+    // ----------------------------------------------------------------------
+    // 1. Функція REFECTH: Змінює тригер, щоб змусити useEffect спрацювати
+    // ----------------------------------------------------------------------
+    const refetch = useCallback(() => {
+        setRefreshTrigger((prev) => prev + 1);
+    }, []);
+
+    // ----------------------------------------------------------------------
+    // 2. Функція для отримання даних (fetchData)
+    // ----------------------------------------------------------------------
     const fetchData = useCallback(
         async (customEndpoint = endpoint) => {
+            const token = localStorage.getItem("authToken");
+            // 🛑 ВАЖЛИВА ПЕРЕВІРКА: Не робити запит, якщо немає токена
+            if (!token && refreshTrigger === 0) {
+                console.warn(
+                    "[useApiData] Токен відсутній. Пропускаємо початкове отримання даних.",
+                );
+                setLoading(false);
+                return;
+            }
+
+            console.log(
+                `[useApiData] Fetching data for ${endpoint}. Trigger: ${refreshTrigger}`,
+            );
             setLoading(true);
             setError(null);
-            const config = getAuthConfig(); // Отримуємо конфігурацію з токеном
+            const config = getAuthConfig();
             try {
-                // Використовуємо axios.get
                 const response = await axios.get(
-                    `${BASE_URL}${customEndpoint}`, config
+                    `${BASE_URL}${customEndpoint}`,
+                    config,
                 );
                 setData(response.data);
             } catch (err) {
-                if (err.response && err.response.status === 401) {
+                // Логуємо 403, але не обов'язково встановлюємо помилку, якщо це просто початок сесії
+                if (err.response && err.response.status === 403) {
                     console.error(
-                        "Неавторизований доступ. Токен відсутній або недійсний.",
+                        "[useApiData] Отримано 403 Forbidden. Необхідна авторизація.",
                     );
-                    // Тут можна додати логіку перенаправлення на сторінку входу (Login page)
+                } else {
+                    console.error("Error fetching data:", err);
+                    setError(err);
                 }
-                console.error("Error fetching data:", err);
-                setError(err);
             } finally {
                 setLoading(false);
             }
         },
-        [endpoint],
-    ); // 'endpoint' як залежність
+        [endpoint, refreshTrigger],
+    );
 
-    // Викликаємо функцію отримання даних при першому рендері або зміні endpoint
+    // ----------------------------------------------------------------------
+    // 3. useEffect: Запускається при зміні fetchData
+    // ----------------------------------------------------------------------
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    // Функція для відправки (POST) або оновлення (PUT/PATCH) даних
-    const sendRequest = useCallback(async (method, path, payload = null) => {
-        setLoading(true);
-        setError(null);
+    // ----------------------------------------------------------------------
+    // 4. Функція для відправки (sendRequest) - без змін
+    // ----------------------------------------------------------------------
+    const sendRequest = useCallback(
+        async (method, path, payload = null) => {
+            setError(null);
 
-        const config = getAuthConfig(); // Отримуємо конфігурацію з токеном
-        try {
-            const url = `${BASE_URL}${path}`;
-            let response;
+            const config = getAuthConfig();
+            const upperMethod = method.toUpperCase();
+            try {
+                const url = `${BASE_URL}${path}`;
+                let response;
 
-            switch (method.toUpperCase()) {
-                case "POST":
-                    response = await axios.post(url, payload, config);
-                    break;
-                case "PUT":
-                    response = await axios.put(url, payload, config);
-                    break;
-                case "DELETE":
-                    response = await axios.delete(url, config);
-                    break;
-                // Додайте інші методи при необхідності
-                default:
-                    throw new Error(`Unsupported method: ${method}`);
+                switch (upperMethod) {
+                    case "POST":
+                        response = await axios.post(url, payload, config);
+                        break;
+                    case "PUT":
+                        response = await axios.put(url, payload, config);
+                        break;
+                    case "DELETE":
+                        response = await axios.delete(url, config);
+                        break;
+                    default:
+                        throw new Error(`Unsupported method: ${method}`);
+                }
+
+                if (
+                    response.status >= 200 &&
+                    response.status < 300 &&
+                    (upperMethod === "POST" ||
+                        upperMethod === "PUT" ||
+                        upperMethod === "DELETE")
+                ) {
+                    console.log(
+                        `[useApiData] Successful ${upperMethod}. Auto-refetching data...`,
+                    );
+                    refetch();
+                }
+
+                return response.data;
+            } catch (err) {
+                console.error(`Error ${method}ing data:`, err);
+                setError(err);
+                throw err;
             }
-            setLoading(false);
-            
-            // Оновлюємо дані після успішної операції, якщо потрібно
-            if (method === "POST") {
-                // Якщо POST, ви можете оновити список, додавши нові дані, або просто викликати fetchData
-                // setData(prevData => [...prevData, response.data]);
-            }
+        },
+        [refetch],
+    );
 
-            return response.data; // Повертаємо відповідь для подальшої обробки в компоненті
-        } catch (err) {
-            console.error(`Error ${method}ing data:`, err);
-            setError(err);
-            setLoading(false);
-            throw err; // Повторно кидаємо помилку, щоб компонент міг її обробити
-        }
-    }, []);
-
-    // Повертаємо стан і функції для використання в компонентах
-    return { data, loading, error, refetch: fetchData, sendRequest };
+    return { data, loading, error, refetch, sendRequest };
 };
 
 export default useApiData;

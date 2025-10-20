@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-
-import useFirestore from "../hooks/useFirestore";
+import useApiData from "../hooks/useApiData";
 
 function TaskProgress({ note }) {
     // 💡 value має бути відсотком (0 до 100)
 
     const [value, setValue] = useState(0);
-
-    const { updateData: updateNote } = useFirestore("notes");
+    const { sendRequest } = useApiData("/notes");
+    
 
     const isTask = note?.isTask || false;
 
@@ -65,7 +64,7 @@ function TaskProgress({ note }) {
         const totalTasks = checkableItems.length;
 
         if (isTask === false && totalTasks !== 0) {
-            updateNote(note?.id, {
+            sendRequest('PUT', `/notes/${note?._id}`, {
                 isTask: true,
             });
         }
