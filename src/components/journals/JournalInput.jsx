@@ -1,7 +1,7 @@
 import { useState, useContext, useMemo } from "react";
-import { UserContext } from "../context/context";
-import Input from "./basicsComponents/Input";
-import Button from "./basicsComponents/Button";
+import { UserContext } from "../../context/context";
+import Input from "../ui/Input";
+
 
 function BlockInput({ sendRequest }) {
 

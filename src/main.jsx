@@ -2,13 +2,13 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserProvider.jsx";
 import { DraftProvider } from "./context/DraftProvider.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import Block from "./components/Block.jsx";
 import App from "./App.jsx";
-import SignIn from "./pages/Auth/SignIn.jsx";
-import SignUp from "./pages/Auth/SignUp.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
-import DashboardLayout from "./pages/dashbord/DashboardLayout.jsx";
+import Journal from "./pages/Journal.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import Register from "./pages/Auth/Register.jsx";
+import Login from "./pages/Auth/Login.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 const root = document.getElementById("root");
 
@@ -18,25 +18,17 @@ ReactDOM.createRoot(root).render(
         <UserProvider>
             <DraftProvider>
                 <Routes>
-                    {/* Головна сторінка з блоками */}
-                    <Route
-                        element={
-                            <ProtectedRoute>
-                                <DashboardLayout />
-                            </ProtectedRoute>
-                        }
-                    >
+                    <Route element={<ProtectedRoute/>}>
+                        {/* Головна сторінка з блоками */}
                         <Route path="/" element={<App />} />
-                        {/* Сторінка конкретного блоку */}
-                        <Route path="/block/:id" element={<Block />} />
-
-                        {/* Сторінка аккаунту */}
+                        {/* Сторінка конкретного журналу (список нотаток) */}
+                        <Route path="/journal/:id" element={<Journal />} />
                         <Route path="/account" element={<AccountPage />} />
                     </Route>
 
-                    {/* Авторизація */}
-                    <Route path="/sign-in" element={<SignIn />} />
-                    <Route path="/sign-up" element={<SignUp />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </DraftProvider>
         </UserProvider>

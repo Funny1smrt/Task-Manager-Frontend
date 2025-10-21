@@ -1,14 +1,13 @@
-import Ol from "./basicsComponents/Ol";
-import Ul from "./basicsComponents/Ul";
-import Checkbox from "./basicsComponents/Checkbox";
-import TextItem from "./basicsComponents/TextItem";
-import ItemManager from "./ItemManager";
-import useApiData from "../hooks/useApiData";
-import useList from "../hooks/useList";
-import CollapsibleBlock from "./CollapsibleBlock";
-import TaskProgress from "./TaskProgress";
+import useApiData from "../../hooks/useApiData";
+import useList from "../../hooks/useList";
+import Ol from "../note-content/Ol";
+import Ul from "../note-content/Ul";
+import TextItem from "../note-content/TextItem";
+import Checkbox from "../note-content/Checkbox";
+import CollapsibleBlock from "../notes/CollapsibleBlock";
+import TaskProgress from "../TaskProgress";
 import { useContext } from "react";
-import { DraftContext } from "../context/context";
+import { DraftContext } from "../../context/context";
 function NoteList() {
     const { data: notes } = useApiData("/notes", []);
     const { draft } = useContext(DraftContext);
@@ -70,7 +69,7 @@ function NoteList() {
                     ))}
                 </CollapsibleBlock>
             ))}
-            
+
         </section>
     );
 }

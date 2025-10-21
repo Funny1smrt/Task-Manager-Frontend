@@ -12,7 +12,7 @@ export default function LogoutButton() {
         try {
             await signOut(auth); // вихід з Firebase
             setUser(null); // очищення стану користувача у контексті
-            navigate("/sign-in"); // редірект на сторінку входу
+            navigate("/login"); // редірект на сторінку входу
         } catch (error) {
             console.error("Logout error:", error);
         }

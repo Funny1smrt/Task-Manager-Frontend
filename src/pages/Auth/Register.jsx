@@ -1,16 +1,16 @@
 import { useState } from "react";
-import {  Link } from "react-router-dom";
-import SignWithGoogleButton from "../../components/basicsComponents/AuthButtons/SignWithGoogleButton";
+import { Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-function SignIn() {
+import SignWithAnonymously from "../../components/ui/AuthButtons/SignWithAnonymously";
+import SignWithGoogleButton from "../../components/ui/AuthButtons/SignWithGoogleButton";
+function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    const { handleSignInWithEmail } = useAuth();
-   
+    const { handleSignUpWithEmail } = useAuth();
 
     return (
         <main>
+            <h2>Sign Up</h2>
             <input
                 type="email"
                 placeholder="Email"
@@ -24,17 +24,21 @@ function SignIn() {
                 onChange={(e) => setPassword(e.target.value)}
             />
             <button
-
-                onClick={() => handleSignInWithEmail( email, password )}
-                name="signInWithEmail"
-            >Увійти</button>
+                onClick={() => handleSignUpWithEmail(email, password)}
+                name="signUpWithEmail"
+            >
+                Зареєструватися
+            </button>
+            <SignWithAnonymously />
             <SignWithGoogleButton />
+
             <hr />
+
             <p>
-                Немає аккаунту? <Link to="/sign-up">Зареєструватися</Link>
+                Вже зареєстровані? <Link to="/login">Увійти</Link>
             </p>
         </main>
     );
 }
 
-export default SignIn;
+export default SignUp;

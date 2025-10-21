@@ -1,4 +1,3 @@
-import Button from "./basicsComponents/Button";
 import { useContext } from "react";
 import { DraftContext } from "../context/context";
 function ItemManager({ note }) {
@@ -16,7 +15,7 @@ function ItemManager({ note }) {
         // table: "table",
     };
 
-    
+
 
     return (
         <section>

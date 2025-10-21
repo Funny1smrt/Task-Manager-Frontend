@@ -1,14 +1,22 @@
-import BlockInput from "./components/BlockInput.jsx";
-import BlockList from "./components/BlockList.jsx";
+import JournalInput from "./components/journals/JournalInput.jsx";
+import JournalList from "./components/journals/JournalList.jsx";
 import useApiData from "./hooks/useApiData.js";
+import NavBar from "./components/navigation/NavBar.jsx";
 function App() {
-    const { data: blocks, sendRequest} = useApiData("/blocks", []);
+    const { data: blocks, sendRequest, loading } = useApiData("/blocks", []);
 
     return (
-        <main>
-            <BlockInput sendRequest={sendRequest}/>
-            <BlockList blocks={blocks}/>
-        </main>
+        <>
+            <main>
+                {loading ? <p>...завантаження</p> :
+                    <>
+                        <JournalInput sendRequest={sendRequest} />
+                        <JournalList blocks={blocks} />
+                    </>}
+            </main>
+        </>
+
+
     );
 }
 

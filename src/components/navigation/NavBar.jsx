@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { VscFileSubmodule, VscAccount, VscChecklist } from "react-icons/vsc";
+import { VscFileSubmodule, VscAccount } from "react-icons/vsc";
 function NavBar() {
     return (
         <section style={{ display: "flex", gap: "20px", position: "absolute", left: "10px", bottom: "10px" }}>

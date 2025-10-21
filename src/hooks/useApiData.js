@@ -125,7 +125,7 @@ const useApiData = (endpoint, initialData = null) => {
                     refetch();
                 }
 
-                return response.data;
+                return response;
             } catch (err) {
                 console.error(`Error ${method}ing data:`, err);
                 setError(err);

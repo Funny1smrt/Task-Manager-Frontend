@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-function BlockList({ blocks }) {
+function JournalList({ blocks }) {
 
     return (
         <section>
@@ -8,7 +8,7 @@ function BlockList({ blocks }) {
                 {blocks.map((block) => (
                     <Link to={`/block/${block._id}`} key={block._id}>
                         <li style={{ backgroundColor: block.color }}>
-                            {block.nameBlock } (Автор: {block.author}) {block._id}
+                            {block.nameJournal} (Автор: {block.author}) {block._id}
                         </li>
                     </Link>
                 ))}
@@ -18,4 +18,4 @@ function BlockList({ blocks }) {
     );
 }
 
-export default BlockList;
+export default JournalList;

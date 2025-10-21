@@ -1,7 +1,7 @@
-import useApiData from "../hooks/useApiData";
+import useApiData from "../../hooks/useApiData";
 import { useContext } from "react";
-import { UserContext } from "../context/context";
-import Button from "./basicsComponents/Button";
+import { UserContext } from "../../context/context";
+// import Button from "../ui/Button";
 function NoteManager({ blockId }) {
     const { sendRequest } = useApiData("/notes", []);
     const { user } = useContext(UserContext);
@@ -24,11 +24,10 @@ function NoteManager({ blockId }) {
 
     return (
         <section>
-            <Button
-                text="Додати"
+            <button
                 onClick={() => handleAddNote()}
                 name="addNote"
-            />
+            >Додати нотатку</button>
         </section>
     );
 }
