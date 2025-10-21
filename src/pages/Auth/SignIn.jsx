@@ -1,33 +1,13 @@
-import { useState, useContext } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
-import { UserContext } from "../../context/context";
-import { useNavigate, Link } from "react-router-dom";
-import Input from "../../components/basicsComponents/Input";
-import Button from "../../components/basicsComponents/Button";
+import { useState } from "react";
+import {  Link } from "react-router-dom";
 import SignWithGoogleButton from "../../components/basicsComponents/AuthButtons/SignWithGoogleButton";
+import useAuth from "../../hooks/useAuth";
 function SignIn() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { setUser } = useContext(UserContext);
-    const navigate = useNavigate();
 
-    const handleSignInWithEmail = async () => {
-        try {
-            const result = await signInWithEmailAndPassword(
-                auth,
-                email,
-                password,
-            );
-            setUser(result.user);
-            const token = await result.user.getIdToken();
-            localStorage.setItem('authToken', token);
-            console.log("Signed in successfully", token);
-            navigate("/"); // автоматично переходимо в додаток
-        } catch (error) {
-            console.error("Sign-in error:", error.code, error.message);
-        }
-    };
+    const { handleSignInWithEmail } = useAuth();
+   
 
     return (
         <main>
@@ -43,11 +23,11 @@ function SignIn() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <Button
-                text="Увійти"
-                onClick={handleSignInWithEmail}
+            <button
+
+                onClick={() => handleSignInWithEmail( email, password )}
                 name="signInWithEmail"
-            />
+            >Увійти</button>
             <SignWithGoogleButton />
             <hr />
             <p>
