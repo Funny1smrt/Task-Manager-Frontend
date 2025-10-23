@@ -1,27 +1,27 @@
 import { useContext } from "react";
 import { DraftContext } from "../context/context";
-function ItemManager({ note }) {
+function ItemManager({ noteId }) {
     const { addDraftItem } = useContext(DraftContext);
 
-    const typeNotes = {
-        text: "text",
-        checkbox: "checkbox",
-        ul: "ul",
-        ol: "ol",
-        // img: "img",
-        // video: "video",
-        // audio: "audio",
-        // link: "link",
-        // table: "table",
-    };
+    const typeNotes = [
+        "text",
+        "checkbox",
+        "ul",
+        "ol",
+        // "img",
+        // "video",
+        // "audio",
+        // "link",
+        // "table",
+    ];
 
 
 
     return (
         <section>
-            {Object.keys(typeNotes).map((type) => (
+            {typeNotes.map((type) => (
                 <button
-                    onClick={() => addDraftItem(note, typeNotes, type)}
+                    onClick={() => addDraftItem(noteId, type)}
                     name={type}
                     key={type}
                 >{type}</button>

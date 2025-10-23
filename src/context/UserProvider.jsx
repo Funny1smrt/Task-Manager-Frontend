@@ -14,7 +14,6 @@ export function UserProvider({ children }) {
                 const safeUser = {
                     displayName: currentUser.displayName || currentUser.email,
                     email: currentUser.email,
-                    photoURL: currentUser.photoURL || "",
                     uid: currentUser.uid,
                     creationTime: currentUser.metadata?.creationTime || null,
                 };

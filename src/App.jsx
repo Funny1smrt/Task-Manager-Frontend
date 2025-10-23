@@ -3,7 +3,7 @@ import JournalList from "./components/journals/JournalList.jsx";
 import useApiData from "./hooks/useApiData.js";
 import NavBar from "./components/navigation/NavBar.jsx";
 function App() {
-    const { data: blocks, sendRequest, loading } = useApiData("/blocks", []);
+    const { data: journals, sendRequest, loading } = useApiData("/journals", []);
 
     return (
         <>
@@ -11,7 +11,7 @@ function App() {
                 {loading ? <p>...завантаження</p> :
                     <>
                         <JournalInput sendRequest={sendRequest} />
-                        <JournalList blocks={blocks} />
+                        <JournalList journals={journals} />
                     </>}
             </main>
         </>

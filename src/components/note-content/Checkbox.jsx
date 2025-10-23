@@ -1,12 +1,12 @@
 import TextItem from "./TextItem";
-import useList from "../../hooks/useList";
+import useNoteComponents from "../../hooks/useNoteComponents";
 function Checkbox({ item }) {
     const isChecked = item?.complete || false;
-    const { handleUpdateListItem } = useList();
+    const { addListItem } = useNoteComponents();
 
     const handleUpdateComplete = () => {
         const newState = !isChecked;
-        handleUpdateListItem(item, newState, "complete");
+        addListItem(item, "complete", newState);
     };
     return (
         <div>

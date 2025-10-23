@@ -3,31 +3,28 @@ import { useState } from "react";
 export function DraftProvider({ children }) {
     const [draft, setDraft] = useState([]);
 
-    const addDraftItem = (note, typeNotes, type) => {
+    const addDraftItem = (noteId, type) => {
         const newDraftItem = {
             itemId: crypto.randomUUID(), // Використовуємо UUID для унікального ідентифікатора
-            type: typeNotes[type],
+            type: type,
             text: "",
             isDraft: true,
-            noteId: note?.id,
+            noteId: noteId,
         };
 
         if (type === "checkbox") {
             newDraftItem.complete = false;
         }
 
-        setDraft(prev => ({
-            ...prev,
-            [note.id]: [...(prev[note.id] || []), newDraftItem]
-        }));
+        setDraft(prev => ([
+            ...(prev),
+            newDraftItem,
+        ]));
 
     };
 
     const removeDraftItem = (noteId, itemId) => {
-        setDraft(prev => ({
-            ...prev,
-            [noteId]: (prev[noteId] || []).filter(item => item.itemId !== itemId)
-        }));
+        setDraft(prev => (prev[noteId]?.filter(item => item.itemId !== itemId) || []));
     };
 
     return (

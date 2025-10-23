@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import useList from "../../hooks/useList";
+import useNoteComponents from "../../hooks/useNoteComponents";
 
 function TextItem({ item }) {
-    const { handleUpdateListItem } = useList();
+    const { addListItem } = useNoteComponents();
     const [text, setText] = useState(item?.text || "");
     const [activeUpdate, setActiveUpdate] = useState(false);
     const inputRef = useRef(null);
@@ -41,7 +41,7 @@ function TextItem({ item }) {
             // Додаємо перевірку на Shift+Enter, щоб дозволити новий рядок
             e.preventDefault();
             if (activeUpdate && text !== item.text) {
-                handleUpdateListItem(item, text, "text");
+                addListItem(item, "text", text);
             }
             setTimeout(() => setActiveUpdate(false), 100);
         }
@@ -50,7 +50,7 @@ function TextItem({ item }) {
     // Обробник втрати фокусу
     const handleBlur = () => {
         if (activeUpdate && text !== item.text) {
-            handleUpdateListItem(item, text, "text");
+            addListItem(item, "text", text);
         }
         setActiveUpdate(false);
     };

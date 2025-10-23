@@ -7,12 +7,12 @@ import useApiData from "../hooks/useApiData";
 function AccountPage() {
     const { user } = useContext(UserContext);
     const { data: notes } = useApiData("/notes");
-    const { data: blocks } = useApiData("/blocks");
+    const { data: journals } = useApiData("/journals");
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [uploadMessage, setUploadMessage] = useState("");
 
-    const {data: avatars, sendRequest } = useApiData("/avatars");
+    const { data: avatars, sendRequest } = useApiData("/avatars");
     // 📁 Обробник вибору файлу
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
@@ -48,12 +48,12 @@ function AccountPage() {
     return (
         <main>
             <h1>{user.displayName || "Немає нікнейму"}</h1>
-            <img src={user.photoURL || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt={user.displayName || "Немає фото"} width={100} />
+            <img src={avatars?.result?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt="Немає фото" width={100} />
             <p>{user.email}</p>
             <p>{user.creationTime}</p>
             <h2>Мої збереження</h2>
             <p>Нотаток: {notes?.length}</p>
-            <p>Блоків: {blocks?.length}</p>
+            <p>Блоків: {journals?.length}</p>
             <br />
             {/* 📁 Вибір файлу */}
             <input type="file" name="file" onChange={handleFileChange} />
@@ -64,10 +64,6 @@ function AccountPage() {
             </button>
 
             <p>{uploadMessage}</p>
-            {avatars?.result?.url && <img src={avatars.result.url} alt="Avatar" width={100} />}
-            <br />
-            <img src="https://phqqeweighriiadopfve.supabase.co/storage/v1/object/public/avatars/q4rNQUnuSZWfMFEdGdaiLE9CtRJ2/avatar.png" alt="ads" />
-
             <br />
 
             <LogoutButton />

@@ -1,18 +1,18 @@
 import { Link } from "react-router-dom";
-function JournalList({ blocks }) {
+function JournalList({ journals }) {
 
     return (
         <section>
             <h2>Мої блоки</h2>
             <ul>
-                {blocks.map((block) => (
-                    <Link to={`/block/${block._id}`} key={block._id}>
-                        <li style={{ backgroundColor: block.color }}>
-                            {block.nameJournal} (Автор: {block.author}) {block._id}
+                {journals.map((journal) => (
+                    <Link to={`/journal/${journal._id}`} key={journal._id}>
+                        <li style={{ backgroundColor: journal.color }}>
+                            {journal.nameJournal} (Автор: {journal.author}) {journal._id}
                         </li>
                     </Link>
                 ))}
-                {blocks.length === 0 && <p>Блоків немає</p>}
+                {journals.length === 0 && <p>Блоків немає</p>}
             </ul>
         </section>
     );

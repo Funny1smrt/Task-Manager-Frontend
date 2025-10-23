@@ -10,8 +10,6 @@ const useApiData = (endpoint, initialData = null) => {
     const [data, setData] = useState(initialData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    // 💡 КЛЮЧОВИЙ ЕЛЕМЕНТ: Стан-тригер для примусового оновлення
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     const BASE_URL = "http://localhost:5000/api";
 
@@ -28,20 +26,13 @@ const useApiData = (endpoint, initialData = null) => {
     };
 
     // ----------------------------------------------------------------------
-    // 1. Функція REFECTH: Змінює тригер, щоб змусити useEffect спрацювати
-    // ----------------------------------------------------------------------
-    const refetch = useCallback(() => {
-        setRefreshTrigger((prev) => prev + 1);
-    }, []);
-
-    // ----------------------------------------------------------------------
     // 2. Функція для отримання даних (fetchData)
     // ----------------------------------------------------------------------
     const fetchData = useCallback(
         async (customEndpoint = endpoint) => {
             const token = localStorage.getItem("authToken");
             // 🛑 ВАЖЛИВА ПЕРЕВІРКА: Не робити запит, якщо немає токена
-            if (!token && refreshTrigger === 0) {
+            if (!token) {
                 console.warn(
                     "[useApiData] Токен відсутній. Пропускаємо початкове отримання даних.",
                 );
@@ -49,9 +40,7 @@ const useApiData = (endpoint, initialData = null) => {
                 return;
             }
 
-            console.log(
-                `[useApiData] Fetching data for ${endpoint}. Trigger: ${refreshTrigger}`,
-            );
+            console.log(`[useApiData] Fetching data for ${endpoint}.`);
             setLoading(true);
             setError(null);
             const config = getAuthConfig();
@@ -75,7 +64,7 @@ const useApiData = (endpoint, initialData = null) => {
                 setLoading(false);
             }
         },
-        [endpoint, refreshTrigger],
+        [endpoint],
     );
 
     // ----------------------------------------------------------------------
@@ -88,54 +77,51 @@ const useApiData = (endpoint, initialData = null) => {
     // ----------------------------------------------------------------------
     // 4. Функція для відправки (sendRequest) - без змін
     // ----------------------------------------------------------------------
-    const sendRequest = useCallback(
-        async (method, path, payload = null) => {
-            setError(null);
+    const sendRequest = async (method, path, payload = null) => {
+        setError(null);
 
-            const config = getAuthConfig();
-            const upperMethod = method.toUpperCase();
-            try {
-                const url = `${BASE_URL}${path}`;
-                let response;
+        const config = getAuthConfig();
+        const upperMethod = method.toUpperCase();
+        try {
+            const url = `${BASE_URL}${path}`;
+            let response;
 
-                switch (upperMethod) {
-                    case "POST":
-                        response = await axios.post(url, payload, config);
-                        break;
-                    case "PUT":
-                        response = await axios.put(url, payload, config);
-                        break;
-                    case "DELETE":
-                        response = await axios.delete(url, config);
-                        break;
-                    default:
-                        throw new Error(`Unsupported method: ${method}`);
-                }
-
-                if (
-                    response.status >= 200 &&
-                    response.status < 300 &&
-                    (upperMethod === "POST" ||
-                        upperMethod === "PUT" ||
-                        upperMethod === "DELETE")
-                ) {
-                    console.log(
-                        `[useApiData] Successful ${upperMethod}. Auto-refetching data...`,
-                    );
-                    refetch();
-                }
-
-                return response;
-            } catch (err) {
-                console.error(`Error ${method}ing data:`, err);
-                setError(err);
-                throw err;
+            switch (upperMethod) {
+                case "POST":
+                    response = await axios.post(url, payload, config);
+                    break;
+                case "PUT":
+                    response = await axios.put(url, payload, config);
+                    break;
+                case "DELETE":
+                    response = await axios.delete(url, config);
+                    break;
+                default:
+                    throw new Error(`Unsupported method: ${method}`);
             }
-        },
-        [refetch],
-    );
 
-    return { data, loading, error, refetch, sendRequest };
+            if (
+                response.status >= 200 &&
+                response.status < 300 &&
+                (upperMethod === "POST" ||
+                    upperMethod === "PUT" ||
+                    upperMethod === "DELETE")
+            ) {
+                console.log(
+                    `[useApiData] Successful ${upperMethod}. Auto-refetching data...`,
+                );
+                fetchData();
+            }
+
+            return response;
+        } catch (err) {
+            console.error(`Error ${method}ing data:`, err);
+            setError(err);
+            throw err;
+        }
+    };
+
+    return { data, loading, error, fetchData, sendRequest };
 };
 
 export default useApiData;

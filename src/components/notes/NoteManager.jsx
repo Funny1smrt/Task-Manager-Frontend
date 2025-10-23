@@ -1,16 +1,14 @@
-import useApiData from "../../hooks/useApiData";
 import { useContext } from "react";
 import { UserContext } from "../../context/context";
 // import Button from "../ui/Button";
-function NoteManager({ blockId }) {
-    const { sendRequest } = useApiData("/notes", []);
+function NoteManager({ journalId, sendRequest }) {
     const { user } = useContext(UserContext);
 
     const handleAddNote = async () => {
         const newNote = {
             author: user.displayName || user.email,
-            blockId: blockId,
-            list: [],
+            journalId: journalId,
+            title: "Нова нотатка",
         };
 
         try {

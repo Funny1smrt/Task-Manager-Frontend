@@ -1,4 +1,3 @@
-
 ```
 Task-Manager-1
 ├─ .prettierignore
@@ -32,7 +31,7 @@ Task-Manager-1
 │  │  │  ├─ TextItem.jsx
 │  │  │  └─ Ul.jsx
 │  │  ├─ notes
-│  │  │  ├─ CollapsibleBlock.jsx
+│  │  │  ├─ CollapsibleJournal.jsx
 │  │  │  ├─ NoteList.jsx
 │  │  │  └─ NoteManager.jsx
 │  │  ├─ ProtectedRoute.jsx
