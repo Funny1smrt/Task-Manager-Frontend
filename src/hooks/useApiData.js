@@ -11,7 +11,7 @@ const useApiData = (endpoint, initialData = null) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const BASE_URL = "http://localhost:5000/api";
+    const BASE_URL = "http://192.168.50.88:3000/api";
 
     const getAuthConfig = () => {
         const token = localStorage.getItem("authToken");

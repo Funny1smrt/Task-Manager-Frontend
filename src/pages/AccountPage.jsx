@@ -6,7 +6,7 @@ import useApiData from "../hooks/useApiData";
 
 function AccountPage() {
     const { user } = useContext(UserContext);
-    const { data: notes } = useApiData("/notes");
+    const { data: notes } = useApiData("/notes?allNotes=true");
     const { data: journals } = useApiData("/journals");
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploading, setUploading] = useState(false);

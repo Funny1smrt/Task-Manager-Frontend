@@ -4,6 +4,7 @@ import { UserProvider } from "./context/UserProvider.jsx";
 import { DraftProvider } from "./context/DraftProvider.jsx";
 import App from "./App.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import TaskManager from "./pages/TaskManager.jsx";
 import Journal from "./pages/Journal.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Register from "./pages/Auth/Register.jsx";
@@ -24,6 +25,7 @@ ReactDOM.createRoot(root).render(
                         {/* Сторінка конкретного журналу (список нотаток) */}
                         <Route path="/journal/:id" element={<Journal />} />
                         <Route path="/account" element={<AccountPage />} />
+                        <Route path="/tasks" element={<TaskManager />} />
                     </Route>
 
                     <Route path="/register" element={<Register />} />

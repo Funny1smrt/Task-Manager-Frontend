@@ -6,24 +6,26 @@ function TaskProgress({ note }) {
 
     const [value, setValue] = useState(0);
     const { sendRequest } = useApiData("/notes");
+    const { data: note_components } = useApiData("/note_components?noteId=" + note._id, []);
     
 
-    const isTask = note?.isTask || false;
+    let isTask = note?.isTask || false;
 
     const [isProgress, setIsProgress] = useState(false);
 
     useEffect(() => {
-        const listItems = note?.list || [];
+
 
         // 1. Фільтруємо елементи типу 'checkbox', оскільки лише вони мають статус 'complete'.
 
         // Якщо ви використовуєте 'complete' для всіх типів, цей фільтр можна видалити.
 
-        const checkableItems = listItems.filter(
+        const checkableItems = note_components?.filter(
             (item) => item.type === "checkbox",
         );
+        const totalTasks = checkableItems?.length;
+        console.log("totalTasks", totalTasks);
 
-        const totalTasks = checkableItems.length;
         if (totalTasks === 0) {
             setIsProgress(false);
             setValue(0);
@@ -38,7 +40,7 @@ function TaskProgress({ note }) {
         const completedTasks = checkableItems.filter(
             (item) => item.complete === true,
         ).length;
-
+        console.log("completedTasks", completedTasks);
         // 3. Обчислюємо відсоток
 
         const newProgressValue = Math.round(
@@ -48,10 +50,10 @@ function TaskProgress({ note }) {
         // 4. Оновлюємо стан
 
         setValue(newProgressValue);
-    }, [note?.list, isTask]); // 💡 Залежність лише від note?.list
+    }, [note_components, isTask]);
 
     const handleTask = (note) => {
-        const listItems = note?.list || [];
+        const listItems = note_components || [];
 
         // 1. Фільтруємо елементи типу 'checkbox', оскільки лише вони мають статус 'complete'.
 
