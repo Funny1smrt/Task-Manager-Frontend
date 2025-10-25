@@ -44,7 +44,7 @@ function AccountPage() {
             setUploading(false);
         }
     };
-    console.log(avatars?.result.url);
+
     return (
         <main>
             <h1>{user.displayName || "Немає нікнейму"}</h1>

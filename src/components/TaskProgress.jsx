@@ -6,7 +6,11 @@ function TaskProgress({ note }) {
 
     const [value, setValue] = useState(0);
     const { sendRequest } = useApiData("/notes");
-    const { data: note_components } = useApiData("/note_components?noteId=" + note._id, []);
+    const noteId = note?._id;
+    const { data: note_components } = useApiData(
+        noteId ? `/note_components?noteId=${noteId}` : null,
+        []
+    );
     
 
     let isTask = note?.isTask || false;
@@ -24,7 +28,6 @@ function TaskProgress({ note }) {
             (item) => item.type === "checkbox",
         );
         const totalTasks = checkableItems?.length;
-        console.log("totalTasks", totalTasks);
 
         if (totalTasks === 0) {
             setIsProgress(false);
@@ -40,7 +43,7 @@ function TaskProgress({ note }) {
         const completedTasks = checkableItems.filter(
             (item) => item.complete === true,
         ).length;
-        console.log("completedTasks", completedTasks);
+
         // 3. Обчислюємо відсоток
 
         const newProgressValue = Math.round(

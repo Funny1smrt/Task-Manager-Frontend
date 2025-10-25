@@ -1,20 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
+import { API_URL } from "../lib/constants";
+import { socket } from "../context/SocketContext";
 
-/**
- * Custom Hook для отримання даних з API
- * @param {string} endpoint - Частина URL-адреси API (наприклад, '/products')
- * @param {object} initialData - Початкове значення для даних
- */
-const useApiData = (endpoint, initialData = null) => {
+const useApiData = (endpoint, initialData = []) => {
     const [data, setData] = useState(initialData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    // Токен читається тут для доступу в useEffect
+    const token = localStorage.getItem("authToken");
 
-    const BASE_URL = "http://192.168.50.88:3000/api";
-
-    const getAuthConfig = () => {
-        const token = localStorage.getItem("authToken");
+    const getAuthConfig = useCallback(() => {
         if (token) {
             return {
                 headers: {
@@ -23,69 +19,18 @@ const useApiData = (endpoint, initialData = null) => {
             };
         }
         return {};
-    };
+    }, [token]);
 
-    // ----------------------------------------------------------------------
-    // 2. Функція для отримання даних (fetchData)
-    // ----------------------------------------------------------------------
-    const fetchData = useCallback(
-        async (customEndpoint = endpoint) => {
-            const token = localStorage.getItem("authToken");
-            // 🛑 ВАЖЛИВА ПЕРЕВІРКА: Не робити запит, якщо немає токена
-            if (!token) {
-                console.warn(
-                    "[useApiData] Токен відсутній. Пропускаємо початкове отримання даних.",
-                );
-                setLoading(false);
-                return;
-            }
-
-            console.log(`[useApiData] Fetching data for ${endpoint}.`);
-            setLoading(true);
-            setError(null);
-            const config = getAuthConfig();
-            try {
-                const response = await axios.get(
-                    `${BASE_URL}${customEndpoint}`,
-                    config,
-                );
-                setData(response.data);
-            } catch (err) {
-                // Логуємо 403, але не обов'язково встановлюємо помилку, якщо це просто початок сесії
-                if (err.response && err.response.status === 403) {
-                    console.error(
-                        "[useApiData] Отримано 403 Forbidden. Необхідна авторизація.",
-                    );
-                } else {
-                    console.error("Error fetching data:", err);
-                    setError(err);
-                }
-            } finally {
-                setLoading(false);
-            }
-        },
-        [endpoint],
-    );
-
-    // ----------------------------------------------------------------------
-    // 3. useEffect: Запускається при зміні fetchData
-    // ----------------------------------------------------------------------
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-    // ----------------------------------------------------------------------
-    // 4. Функція для відправки (sendRequest) - без змін
-    // ----------------------------------------------------------------------
     const sendRequest = async (method, path, payload = null) => {
         setError(null);
-
         const config = getAuthConfig();
         const upperMethod = method.toUpperCase();
+
         try {
-            const url = `${BASE_URL}${path}`;
+            const url = `${API_URL}${path}`;
             let response;
 
+            // ... (SWITCH: POST/PUT/DELETE) ...
             switch (upperMethod) {
                 case "POST":
                     response = await axios.post(url, payload, config);
@@ -107,12 +52,11 @@ const useApiData = (endpoint, initialData = null) => {
                     upperMethod === "PUT" ||
                     upperMethod === "DELETE")
             ) {
+                // ✅ Залишаємо лог, але знаємо, що Socket.IO зробить оновлення
                 console.log(
-                    `[useApiData] Successful ${upperMethod}. Auto-refetching data...`,
+                    `[useApiData] Successful ${upperMethod}. Real-time update expected from server.`,
                 );
-                fetchData();
             }
-
             return response;
         } catch (err) {
             console.error(`Error ${method}ing data:`, err);
@@ -120,6 +64,103 @@ const useApiData = (endpoint, initialData = null) => {
             throw err;
         }
     };
+
+    // fetchData також потребує getAuthConfig, тому є залежність.
+    const fetchData = useCallback(
+        async (customEndpoint = endpoint) => {
+            setLoading(true);
+            setError(null);
+            const config = getAuthConfig();
+            try {
+                const response = await axios.get(
+                    `${API_URL}${customEndpoint}`,
+                    config,
+                );
+                setData(response.data);
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        },
+        [endpoint, getAuthConfig],
+    );
+
+    // ====================================================================
+    // SOCKET.IO LOGIC
+    // ====================================================================
+// --- 1. Обчислення параметрів та імен (СТАБІЛІЗАЦІЯ) ---
+    const { resourceType, eventName, reqQuery } = useMemo(() => {
+        const [path, queryString] = endpoint.split('?');
+        const rType = path.substring(1).split('/')[0];
+        
+        const query = {};
+        if (queryString) {
+            new URLSearchParams(queryString).forEach((value, key) => {
+                query[key] = value;
+            });
+        }
+
+        return {
+            resourceType: rType,
+            eventName: rType,
+            reqQuery: query,
+        };
+    }, [endpoint]); // ✅ Залежить тільки від endpoint
+    const handleResourceUpdate = useCallback(
+        (updatedData) => {
+            // Тут логіка, яка оновлює стан
+            console.log(`Real-time update received for ${resourceType}.`);
+            setData(updatedData);
+            setLoading(false);
+        },
+        [resourceType],
+    ); // Залежить від типу ресурсу
+    // ✅ Виносимо joinRoom у useCallback, щоб він не створювався на кожному рендері
+    const joinRoom = useCallback(() => {
+        // 💡 ТУТ ВИКОРИСТОВУЮТЬСЯ ВСІ НЕОБХІДНІ ЗМІННІ
+        socket.emit("join-user-room", { token, resourceType, reqQuery });
+        console.log(
+            `Socket.IO connected. Requesting room: ${resourceType} with query:`,
+            reqQuery,
+        );
+    }, [token, resourceType, reqQuery]);
+
+    useEffect(() => {
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        // --- 3. Логіка підключення та приєднання ---
+
+        if (!socket.connected) {
+            socket.connect();
+            setLoading(true);
+            const initialJoin = () => {
+                joinRoom();
+                socket.off("connect", initialJoin); // Видаляємо після першого запуску
+            };
+            socket.on("connect", initialJoin);
+        } else {
+            // ✅ ЯКЩО ВЖЕ ПІДКЛЮЧЕНО (Навігація/Зміна endpoint):
+            // Викликаємо joinRoom напряму, щоб оновити кімнату без повторного connect.
+            // Інакше, socket.on("connect", joinRoom) викликається при першому підключенні
+            joinRoom();
+            setLoading(true);
+        }
+
+        // Встановлюємо слухача для даних (працює і для початкового завантаження, і для оновлень)
+        socket.on(eventName, handleResourceUpdate);
+
+        // --- 4. Очищення ---
+        return () => {
+            // Видаляємо обробник оновлення даних
+            socket.off("connect", joinRoom);
+            socket.off(eventName, handleResourceUpdate);
+        };
+        // ✅ Залежності: endpoint змушує перепідключатися при навігації. token - при логіні/логауті.
+    }, [token, eventName, joinRoom, handleResourceUpdate, endpoint]);
 
     return { data, loading, error, fetchData, sendRequest };
 };

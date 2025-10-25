@@ -8,7 +8,12 @@ import Ul from "../note-content/Ul";
 import TextItem from "../note-content/TextItem";
 import Checkbox from "../note-content/Checkbox";
 function CollapsibleJournal({ note, title, progress }) {
-    const { data: note_components } = useApiData(`/note_components?noteId=${note._id}`, []);
+    const noteId = note?._id;
+    const noteComponentsHook = useApiData(
+        noteId ? `/note_components?noteId=${noteId}` : null, // ✅ Виклик лише з дійсним ID
+        []
+    );
+    const { data: note_components } = noteComponentsHook;
 
     const { draft } = useContext(DraftContext);
     const { groupItemsByAdjacency } = useNoteComponents();

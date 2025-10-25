@@ -4,9 +4,9 @@ import NoteManager from "../components/notes/NoteManager";
 import useApiData from "../hooks/useApiData";
 function Journal() {
     const { id } = useParams(); // отримуємо journalId з URL
-    console.log("🔹 journalId у NoteList:", id);
 
     const { data: notes, sendRequest } = useApiData(`/notes?journalId=${id}`, []);
+    
     return (
         <section>
             <h2>Блок {id}</h2>
