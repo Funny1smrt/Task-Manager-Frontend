@@ -48,7 +48,7 @@ function AccountPage() {
     return (
         <main>
             <h1>{user.displayName || "Немає нікнейму"}</h1>
-            <img src={avatars?.result?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt="Немає фото" width={100} />
+            <img src={avatars?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt={user.displayName + " avatar"} width={100} />
             <p>{user.email}</p>
             <p>{user.creationTime}</p>
             <h2>Мої збереження</h2>

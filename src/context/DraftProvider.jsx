@@ -1,11 +1,12 @@
 import { DraftContext } from "./context";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+
 export function DraftProvider({ children }) {
     const [draft, setDraft] = useState([]);
 
-    const addDraftItem = (noteId, type) => {
+    const addDraftItem = useCallback((noteId, type) => {
         const newDraftItem = {
-            itemId: crypto.randomUUID(), // Використовуємо UUID для унікального ідентифікатора
+            itemId: crypto.randomUUID(),
             type: type,
             text: "",
             isDraft: true,
@@ -16,19 +17,41 @@ export function DraftProvider({ children }) {
             newDraftItem.complete = false;
         }
 
-        setDraft(prev => ([
-            ...(prev),
-            newDraftItem,
-        ]));
+        setDraft(prev => [...prev, newDraftItem]);
+        console.log("✅ Додано draft елемент:", newDraftItem);
+    }, []);
 
-    };
+    const removeDraftItem = useCallback((noteId, itemId) => {
+        setDraft(prev => prev.filter(
+            item => !(item.noteId === noteId && item.itemId === itemId)
+        ));
+        console.log("🗑️ Видалено draft елемент:", { noteId, itemId });
+    }, []);
 
-    const removeDraftItem = (noteId, itemId) => {
-        setDraft(prev => (prev[noteId]?.filter(item => item.itemId !== itemId) || []));
-    };
+    const clearDraftForNote = useCallback((noteId) => {
+        setDraft(prev => prev.filter(item => item.noteId !== noteId));
+        console.log("🗑️ Очищено всі draft для нотатки:", noteId);
+    }, []);
+
+    const updateDraftItem = useCallback((itemId, updates) => {
+        setDraft(prev => prev.map(item =>
+            item.itemId === itemId
+                ? { ...item, ...updates }
+                : item
+        ));
+    }, []);
 
     return (
-        <DraftContext.Provider value={{ draft, setDraft, removeDraftItem, addDraftItem }}>
+        <DraftContext.Provider
+            value={{
+                draft,
+                setDraft,
+                addDraftItem,
+                removeDraftItem,
+                clearDraftForNote,
+                updateDraftItem
+            }}
+        >
             {children}
         </DraftContext.Provider>
     );

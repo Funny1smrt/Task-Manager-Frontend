@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { StrictMode } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { UserProvider } from "./context/UserProvider.jsx";
 import { DraftProvider } from "./context/DraftProvider.jsx";
 import App from "./App.jsx";
@@ -14,25 +15,26 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
-    <BrowserRouter>
+    <StrictMode>
+        <BrowserRouter>
+            <UserProvider>
+                <DraftProvider>
+                    <Routes>
+                        <Route element={<ProtectedRoute />}>
+                            {/* Головна сторінка з блоками */}
+                            <Route path="/" element={<App />} />
+                            {/* Сторінка конкретного журналу (список нотаток) */}
+                            <Route path="/journal/:id" element={<Journal />} />
+                            <Route path="/account" element={<AccountPage />} />
+                            <Route path="/tasks" element={<TaskManager />} />
+                        </Route>
 
-        <UserProvider>
-            <DraftProvider>
-                <Routes>
-                    <Route element={<ProtectedRoute/>}>
-                        {/* Головна сторінка з блоками */}
-                        <Route path="/" element={<App />} />
-                        {/* Сторінка конкретного журналу (список нотаток) */}
-                        <Route path="/journal/:id" element={<Journal />} />
-                        <Route path="/account" element={<AccountPage />} />
-                        <Route path="/tasks" element={<TaskManager />} />
-                    </Route>
-
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-            </DraftProvider>
-        </UserProvider>
-    </BrowserRouter>,
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="*" element={<NotFound />} />
+                    </Routes>
+                </DraftProvider>
+            </UserProvider>
+        </BrowserRouter>
+    </StrictMode>,
 );

@@ -7,8 +7,8 @@ const useApiData = (endpoint, initialData = []) => {
     const [data, setData] = useState(initialData);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    // Токен читається тут для доступу в useEffect
-    const token = localStorage.getItem("authToken");
+
+    const token = useMemo(() => localStorage.getItem("authToken"), []);
 
     const getAuthConfig = useCallback(() => {
         if (token) {
@@ -21,56 +21,54 @@ const useApiData = (endpoint, initialData = []) => {
         return {};
     }, [token]);
 
-    const sendRequest = async (method, path, payload = null) => {
-        setError(null);
-        const config = getAuthConfig();
-        const upperMethod = method.toUpperCase();
+    const sendRequest = useCallback(
+        async (method, path, payload = null) => {
+            setError(null);
+            const config = getAuthConfig();
+            const upperMethod = method.toUpperCase();
 
-        try {
-            const url = `${API_URL}${path}`;
-            let response;
+            try {
+                const url = `${API_URL}${path}`;
+                let response;
 
-            // ... (SWITCH: POST/PUT/DELETE) ...
-            switch (upperMethod) {
-                case "POST":
-                    response = await axios.post(url, payload, config);
-                    break;
-                case "PUT":
-                    response = await axios.put(url, payload, config);
-                    break;
-                case "DELETE":
-                    response = await axios.delete(url, config);
-                    break;
-                default:
-                    throw new Error(`Unsupported method: ${method}`);
-            }
+                switch (upperMethod) {
+                    case "POST":
+                        response = await axios.post(url, payload, config);
+                        break;
+                    case "PUT":
+                        response = await axios.put(url, payload, config);
+                        break;
+                    case "DELETE":
+                        response = await axios.delete(url, config);
+                        break;
+                    default:
+                        throw new Error(`Unsupported method: ${method}`);
+                }
 
-            if (
-                response.status >= 200 &&
-                response.status < 300 &&
-                (upperMethod === "POST" ||
-                    upperMethod === "PUT" ||
-                    upperMethod === "DELETE")
-            ) {
-                // ✅ Залишаємо лог, але знаємо, що Socket.IO зробить оновлення
                 console.log(
-                    `[useApiData] Successful ${upperMethod}. Real-time update expected from server.`,
+                    `[useApiData] ${upperMethod} успішний. Очікуємо Socket.IO оновлення.`,
                 );
+                return response;
+            } catch (err) {
+                console.error(`Error ${method}ing data:`, err);
+                setError(err);
+                throw err;
             }
-            return response;
-        } catch (err) {
-            console.error(`Error ${method}ing data:`, err);
-            setError(err);
-            throw err;
-        }
-    };
+        },
+        [getAuthConfig],
+    );
 
-    // fetchData також потребує getAuthConfig, тому є залежність.
     const fetchData = useCallback(
         async (customEndpoint = endpoint) => {
+            if (!customEndpoint) {
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
             setError(null);
             const config = getAuthConfig();
+
             try {
                 const response = await axios.get(
                     `${API_URL}${customEndpoint}`,
@@ -78,6 +76,7 @@ const useApiData = (endpoint, initialData = []) => {
                 );
                 setData(response.data);
             } catch (err) {
+                console.error("Помилка завантаження:", err);
                 setError(err);
             } finally {
                 setLoading(false);
@@ -86,81 +85,97 @@ const useApiData = (endpoint, initialData = []) => {
         [endpoint, getAuthConfig],
     );
 
-    // ====================================================================
-    // SOCKET.IO LOGIC
-    // ====================================================================
-// --- 1. Обчислення параметрів та імен (СТАБІЛІЗАЦІЯ) ---
-    const { resourceType, eventName, reqQuery } = useMemo(() => {
-        const [path, queryString] = endpoint.split('?');
-        const rType = path.substring(1).split('/')[0];
-        
-        const query = {};
+    // ✅ ВИПРАВЛЕННЯ: Парсимо endpoint один раз і мемоізуємо всі параметри
+    const socketParams = useMemo(() => {
+        if (!endpoint) return null;
+
+        const [path, queryString] = endpoint.split("?");
+        const resourceType = path.substring(1).split("/")[0];
+
+        const reqQuery = {};
         if (queryString) {
             new URLSearchParams(queryString).forEach((value, key) => {
-                query[key] = value;
+                reqQuery[key] = value;
             });
         }
 
         return {
-            resourceType: rType,
-            eventName: rType,
-            reqQuery: query,
+            resourceType,
+            eventName: resourceType,
+            reqQuery,
+            // Для порівняння в useEffect
+            queryString: JSON.stringify(reqQuery),
         };
-    }, [endpoint]); // ✅ Залежить тільки від endpoint
+    }, [endpoint]);
+
+    // Обробник real-time оновлень - стабільний через useCallback
     const handleResourceUpdate = useCallback(
         (updatedData) => {
-            // Тут логіка, яка оновлює стан
-            console.log(`Real-time update received for ${resourceType}.`);
+            if (!socketParams) return;
+            console.log(
+                `✅ Real-time оновлення для ${socketParams.resourceType}:`,
+                updatedData,
+            );
             setData(updatedData);
             setLoading(false);
         },
-        [resourceType],
-    ); // Залежить від типу ресурсу
-    // ✅ Виносимо joinRoom у useCallback, щоб він не створювався на кожному рендері
-    const joinRoom = useCallback(() => {
-        // 💡 ТУТ ВИКОРИСТОВУЮТЬСЯ ВСІ НЕОБХІДНІ ЗМІННІ
-        socket.emit("join-user-room", { token, resourceType, reqQuery });
-        console.log(
-            `Socket.IO connected. Requesting room: ${resourceType} with query:`,
-            reqQuery,
-        );
-    }, [token, resourceType, reqQuery]);
+        [socketParams],
+    );
 
+    // Socket.IO логіка
     useEffect(() => {
-        if (!token) {
+        if (!token || !socketParams || !endpoint) {
             setLoading(false);
             return;
         }
 
-        // --- 3. Логіка підключення та приєднання ---
+        const { resourceType, eventName, reqQuery } = socketParams;
+        let isSubscribed = true;
 
+        const joinRoom = () => {
+            if (!isSubscribed) return;
+
+            socket.emit("join-user-room", { token, resourceType, reqQuery });
+            console.log(
+                `📡 Socket.IO: Приєднання до кімнати ${resourceType}`,
+                reqQuery,
+            );
+        };
+
+        const handleConnectError = (error) => {
+            console.error(
+                `❌ Socket.IO: Не вдалося підключитися до ${resourceType}:`,
+                error.message,
+            );
+            console.log(
+                `🔄 Fallback: завантаження ${resourceType} через HTTP...`,
+            );
+            if (isSubscribed) {
+                fetchData();
+            }
+        };
+
+        // Підключення
         if (!socket.connected) {
             socket.connect();
-            setLoading(true);
-            const initialJoin = () => {
-                joinRoom();
-                socket.off("connect", initialJoin); // Видаляємо після першого запуску
-            };
-            socket.on("connect", initialJoin);
+            socket.once("connect", joinRoom);
+            socket.once("connect_error", handleConnectError);
         } else {
-            // ✅ ЯКЩО ВЖЕ ПІДКЛЮЧЕНО (Навігація/Зміна endpoint):
-            // Викликаємо joinRoom напряму, щоб оновити кімнату без повторного connect.
-            // Інакше, socket.on("connect", joinRoom) викликається при першому підключенні
             joinRoom();
-            setLoading(true);
         }
 
-        // Встановлюємо слухача для даних (працює і для початкового завантаження, і для оновлень)
+        // Підписка на оновлення
         socket.on(eventName, handleResourceUpdate);
 
-        // --- 4. Очищення ---
+        // Очищення
         return () => {
-            // Видаляємо обробник оновлення даних
-            socket.off("connect", joinRoom);
+            isSubscribed = false;
             socket.off(eventName, handleResourceUpdate);
+            socket.off("connect_error", handleConnectError);
+            console.log(`🔌 Відписка від ${eventName}`);
         };
-        // ✅ Залежності: endpoint змушує перепідключатися при навігації. token - при логіні/логауті.
-    }, [token, eventName, joinRoom, handleResourceUpdate, endpoint]);
+        // ✅ Тепер всі залежності правильні і стабільні
+    }, [token, socketParams, endpoint, handleResourceUpdate, fetchData]);
 
     return { data, loading, error, fetchData, sendRequest };
 };

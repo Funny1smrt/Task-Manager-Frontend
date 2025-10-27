@@ -5,8 +5,11 @@ function TextItem({ item }) {
     const { addListItem } = useNoteComponents();
     const [text, setText] = useState(item?.text || "");
     const [activeUpdate, setActiveUpdate] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const inputRef = useRef(null);
+    const timeoutRef = useRef(null);
 
+    // Автоматична висота textarea
     const adjustHeight = () => {
         const textarea = inputRef.current;
         if (textarea) {
@@ -25,6 +28,7 @@ function TextItem({ item }) {
         }
     }, [activeUpdate]);
 
+    // Синхронізуємо локальний стан з пропсами
     useEffect(() => {
         if (!activeUpdate) {
             setText(item?.text || "");
@@ -35,60 +39,106 @@ function TextItem({ item }) {
         setText(e.target.value);
     };
 
-    // Обробник натискання клавіш (для Enter)
+    const saveText = async () => {
+        if (text === item?.text) {
+            return; // Нічого не змінилось
+        }
+
+        setIsSaving(true);
+        try {
+            await addListItem(item, "text", text);
+            console.log("✅ Текст збережено");
+        } catch (error) {
+            console.error("❌ Помилка збереження:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
-            // Додаємо перевірку на Shift+Enter, щоб дозволити новий рядок
             e.preventDefault();
-            if (activeUpdate && text !== item.text) {
-                addListItem(item, "text", text);
-            }
+            saveText();
             setTimeout(() => setActiveUpdate(false), 100);
         }
     };
 
-    // Обробник втрати фокусу
     const handleBlur = () => {
-        if (activeUpdate && text !== item.text) {
-            addListItem(item, "text", text);
-        }
-        setActiveUpdate(false);
+        // Затримка для збереження перед закриттям
+        timeoutRef.current = setTimeout(() => {
+            if (text !== item?.text) {
+                saveText();
+            }
+            setActiveUpdate(false);
+        }, 200);
     };
 
+    // Очищення timeout
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
+
     return (
-        <div>
+        <div style={{ position: "relative" }}>
             {!activeUpdate ? (
-                // Режим читання
                 <div>
                     <p
                         onClick={() => setActiveUpdate(true)}
-                        // readOnly
-                        // Додайте тут стилі для режиму читання, щоб висота теж була динамічною
-                        style={{ overflowWrap: "break-word" }}
+                        style={{
+                            overflowWrap: "break-word",
+                            cursor: "pointer",
+                            padding: "8px",
+                            border: "1px solid transparent",
+                            borderRadius: "4px",
+                            minHeight: "40px",
+                            transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = "#f5f5f5"}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
                     >
-                        {item?.text || "Введіть завдання"}
+                        {item?.text || <span style={{ color: "#999" }}>Клацніть для редагування...</span>}
                     </p>
-                    <hr />
                 </div>
             ) : (
-                // Режим редагування
-                <textarea
-                    wrap="hard"
-                    type="text"
-                    name="text"
-                    value={text}
-                    onChange={handleChange}
-                    placeholder="Введіть завдання"
-                    ref={inputRef}
-                    onKeyDown={handleKeyDown}
-                    onBlur={handleBlur}
-                    // Додайте початкову мінімальну висоту та приховайте скролбар
-                    style={{
-                        overflow: "hidden",
-                        minHeight: "40px",
-                        resize: "none",
-                    }}
-                />
+                <div>
+                    <textarea
+                        wrap="hard"
+                        value={text}
+                        onChange={handleChange}
+                        placeholder="Введіть текст..."
+                        ref={inputRef}
+                        onKeyDown={handleKeyDown}
+                        onBlur={handleBlur}
+                        disabled={isSaving}
+                        style={{
+                            width: "100%",
+                            overflow: "hidden",
+                            minHeight: "40px",
+                            resize: "none",
+                            padding: "8px",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            fontSize: "14px",
+                            fontFamily: "inherit",
+                            opacity: isSaving ? 0.6 : 1,
+                        }}
+                    />
+                    {isSaving && (
+                        <span style={{
+                            fontSize: "12px",
+                            color: "#999",
+                            position: "absolute",
+                            right: "10px",
+                            bottom: "5px",
+                        }}>
+                            Збереження...
+                        </span>
+                    )}
+                </div>
             )}
         </div>
     );
