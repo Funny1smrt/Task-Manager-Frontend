@@ -8,7 +8,7 @@ import { auth, provider } from "../firebase";
 import { useContext } from "react";
 import { UserContext } from "../context/context";
 import { useNavigate } from "react-router-dom";
-
+import { API_URL } from "../lib/constants";
 // import useApiData from "./useApiData";
 
 const useAuth = () => {
@@ -25,14 +25,11 @@ const useAuth = () => {
             setUser(result.user);
             const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
             // Надсилаємо на бекенд
-            const response = await fetch(
-                "http://localhost:5000/api/users/auth",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idToken }),
-                },
-            );
+            const response = await fetch(`${API_URL}/users/auth`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idToken }),
+            });
 
             const data = await response.json();
             localStorage.setItem("authToken", data.jwt);
@@ -52,14 +49,11 @@ const useAuth = () => {
             setUser(result.user);
             const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
             // Надсилаємо на бекенд
-            const response = await fetch(
-                "http://localhost:5000/api/users/auth",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idToken }),
-                },
-            );
+            const response = await fetch(`${API_URL}/users/auth`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idToken }),
+            });
 
             const data = await response.json();
             localStorage.setItem("authToken", data.jwt);
@@ -76,7 +70,8 @@ const useAuth = () => {
             const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
             // Надсилаємо на бекенд
             const response = await fetch(
-                "http://localhost:5000/api/users/auth",
+                `${API_URL}/users/auth`,
+
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -99,7 +94,8 @@ const useAuth = () => {
             const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
             // Надсилаємо на бекенд
             const response = await fetch(
-                "http://localhost:5000/api/users/auth",
+                `${API_URL}/users/auth`,
+
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -115,7 +111,12 @@ const useAuth = () => {
             console.error("Sign-in error:", error.code, error.message);
         }
     };
-    return { handleSignInWithEmail, handleSignUpWithEmail, handleSignInWithGoogle, handleSignInWithAnonymously };
+    return {
+        handleSignInWithEmail,
+        handleSignUpWithEmail,
+        handleSignInWithGoogle,
+        handleSignInWithAnonymously,
+    };
 };
 
 export default useAuth;
