@@ -3,11 +3,12 @@ import axios from "axios";
 import { API_URL } from "../lib/constants";
 import { socket } from "../context/SocketContext";
 
-const useApiData = (endpoint, initialData = []) => {
+const useApiData = (endpoint, initialData = [], options = {}) => {
+    const { lazy = false } = options;
     const [data, setData] = useState(initialData);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => (lazy ? false : true));
     const [error, setError] = useState(null);
-
+    // console.log("lazy:", lazy, "loading:", loading);
     const token = useMemo(() => localStorage.getItem("authToken"), []);
 
     const getAuthConfig = useCallback(() => {
@@ -46,7 +47,8 @@ const useApiData = (endpoint, initialData = []) => {
                 }
 
                 console.log(
-                    `[useApiData] ${upperMethod} успішний. Очікуємо Socket.IO оновлення.`,
+                    `[useApiData] ${upperMethod} успішний. Очікуємо Socket.IO оновлення.
+                    ${url} ${JSON.stringify(payload)}`,
                 );
                 return response;
             } catch (err) {
@@ -124,7 +126,7 @@ const useApiData = (endpoint, initialData = []) => {
 
     // Socket.IO логіка
     useEffect(() => {
-        if (!token || !socketParams || !endpoint) {
+        if (!token || !socketParams || !endpoint || lazy) {
             setLoading(false);
             return;
         }
@@ -175,7 +177,7 @@ const useApiData = (endpoint, initialData = []) => {
             console.log(`🔌 Відписка від ${eventName}`);
         };
         // ✅ Тепер всі залежності правильні і стабільні
-    }, [token, socketParams, endpoint, handleResourceUpdate, fetchData]);
+    }, [token, socketParams, endpoint, handleResourceUpdate, fetchData, lazy]);
 
     return { data, loading, error, fetchData, sendRequest };
 };

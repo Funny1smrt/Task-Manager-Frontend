@@ -6,5 +6,4 @@ function Task({ task }) {
         </div>
     );
 }
-
-export default Task;
+    export default Task;

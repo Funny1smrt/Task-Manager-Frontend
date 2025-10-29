@@ -8,12 +8,15 @@ function NoteList({ notes }) {
             {notes?.map((note) => (
                 <div key={note._id}>
                     {note?._id &&
-                        (<CollapsibleJournal
-                            key={note._id}
-                            title={note?._id}
-                            progress={<TaskProgress note={note} />}
-                            note={note}
-                        />)
+                        (<>
+                            <TaskProgress note={note} />
+                            <CollapsibleJournal
+                                key={note._id}
+                                title={note?._id}
+                                note={note}
+                            />
+                        </>
+                        )
                     }
                 </div>
 

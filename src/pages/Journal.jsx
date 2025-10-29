@@ -5,14 +5,16 @@ import useApiData from "../hooks/useApiData";
 function Journal() {
     const { id } = useParams(); // отримуємо journalId з URL
 
-    const { data: notes, sendRequest } = useApiData(`/notes?journalId=${id}`, []);
-    
+    const { data: notes,  loading } = useApiData(`/notes?journalId=${id}`, []);
+
     return (
         <section>
             <h2>Блок {id}</h2>
             {/* Тут уже твій NoteList, який бере activeJournal = id */}
-            <NoteManager journalId={id} sendRequest={sendRequest} />
-            <NoteList notes={notes} />
+            <NoteManager journalId={id} />
+            {loading ? <p>...завантаження</p> :
+                <NoteList notes={notes} />
+            }
         </section>
     );
 }

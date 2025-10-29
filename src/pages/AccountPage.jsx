@@ -1,9 +1,8 @@
 import { UserContext } from "../context/context";
-import { useState } from "react";
-import { useContext } from "react";
+import { useState, useContext } from "react";
 import LogoutButton from "../components/ui/AuthButtons/LogoutButton";
 import useApiData from "../hooks/useApiData";
-
+import { Link } from "react-router-dom";
 function AccountPage() {
     const { user } = useContext(UserContext);
     const { data: notes } = useApiData("/notes?allNotes=true");
@@ -54,6 +53,9 @@ function AccountPage() {
             <h2>Мої збереження</h2>
             <p>Нотаток: {notes?.length}</p>
             <p>Блоків: {journals?.length}</p>
+            <h3><Link to="/tags">Теги</Link></h3>
+            <br /><br />
+            <h3>Завантажити аватар</h3>
             <br />
             {/* 📁 Вибір файлу */}
             <input type="file" name="file" onChange={handleFileChange} />

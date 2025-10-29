@@ -7,6 +7,7 @@ import App from "./App.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
 import TaskManager from "./pages/TaskManager.jsx";
 import Journal from "./pages/Journal.jsx";
+import TagsList from "./pages/TagsList.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Register from "./pages/Auth/Register.jsx";
 import Login from "./pages/Auth/Login.jsx";
@@ -25,8 +26,13 @@ ReactDOM.createRoot(root).render(
                             <Route path="/" element={<App />} />
                             {/* Сторінка конкретного журналу (список нотаток) */}
                             <Route path="/journal/:id" element={<Journal />} />
+                            {/* Сторінка акаунту користувача */}
                             <Route path="/account" element={<AccountPage />} />
+                            {/* Сторінка керування завданнями */}
                             <Route path="/tasks" element={<TaskManager />} />
+                            {/* Сторінка керування тегами */}
+                            <Route path="/tags" element={<TagsList />} />
+
                         </Route>
 
                         <Route path="/register" element={<Register />} />

@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import useNoteComponents from "../../hooks/useNoteComponents";
 
-function TextItem({ item }) {
+function TextItem({ item, onAddAfter }) {
     const { addListItem } = useNoteComponents();
     const [text, setText] = useState(item?.text || "");
     const [activeUpdate, setActiveUpdate] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [showAddButton, setShowAddButton] = useState(false);
     const inputRef = useRef(null);
     const timeoutRef = useRef(null);
 
@@ -83,7 +84,11 @@ function TextItem({ item }) {
     }, []);
 
     return (
-        <div style={{ position: "relative" }}>
+        <div
+            style={{ position: "relative" }}
+            onMouseEnter={() => setShowAddButton(true)}              // НОВЕ
+            onMouseLeave={() => setShowAddButton(false)}
+        >
             {!activeUpdate ? (
                 <div>
                     <p
@@ -139,6 +144,42 @@ function TextItem({ item }) {
                         </span>
                     )}
                 </div>
+            )}
+
+            {/* Кнопка додавання */}
+            {showAddButton && onAddAfter && (
+                <button
+                    onClick={() => onAddAfter(item)}
+                    style={{
+                        position: "absolute",
+                        left: "50%",
+                        bottom: "-15px",
+                        transform: "translateX(-50%)",
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "50%",
+                        border: "2px solid #4CAF50",
+                        backgroundColor: "white",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "18px",
+                        color: "#4CAF50",
+                        transition: "all 0.2s",
+                        zIndex: 10,
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = "#4CAF50";
+                        e.target.style.color = "white";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "white";
+                        e.target.style.color = "#4CAF50";
+                    }}
+                >
+                    +
+                </button>
             )}
         </div>
     );

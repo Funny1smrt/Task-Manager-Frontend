@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import { DraftContext } from "../../context/context";
 import useNoteComponents from "../../hooks/useNoteComponents";
 import useApiData from "../../hooks/useApiData";
@@ -8,7 +8,7 @@ import Ul from "../note-content/Ul";
 import TextItem from "../note-content/TextItem";
 import Checkbox from "../note-content/Checkbox";
 
-function CollapsibleJournal({ note, title, progress }) {
+function CollapsibleJournal({ note, title }) {
     const noteId = note?._id;
 
     // ✅ КРИТИЧНЕ ВИПРАВЛЕННЯ: створюємо endpoint один раз
@@ -19,35 +19,47 @@ function CollapsibleJournal({ note, title, progress }) {
     }, [noteId]); // Залежить ТІЛЬКИ від noteId
 
     // Тепер useApiData викликається з стабільним endpoint
-    const { data: note_components, loading } = useApiData(endpoint, []);
+    const [lazy, setLazy] = useState(true);
+    const { data: note_components, loading, fetchData } = useApiData(endpoint, [], { lazy: lazy });
     const { draft } = useContext(DraftContext);
     const { groupItemsByAdjacency } = useNoteComponents();
     const [isOpen, setIsOpen] = useState(false);
-
+    useEffect(() => {
+        if (isOpen && endpoint) {
+            setLazy(false);
+        }
+    }, [isOpen, fetchData, endpoint]);
     const toggleCollapse = () => {
         setIsOpen(!isOpen);
     };
 
-    // Компонент для рендерингу групи
+    // Додати функцію для додавання нового компонента після певного елемента
+    const handleAddAfter = (afterItem) => {
+        console.log("Додати після:", afterItem);
+        // Тут буде логіка додавання нового компонента того ж типу
+        // Можна використати існуючий addListItem з useNoteComponents
+    };
+
+    // Оновити GroupRenderer
     const GroupRenderer = ({ group, index }) => {
         const type = group[0]?.type;
         const key = `group-${index}-${type}`;
 
         if (type === "ol") {
-            return <Ol key={key} items={group} />;
+            return <Ol key={key} items={group} onAddAfter={handleAddAfter} />;
         }
         if (type === "ul") {
-            return <Ul key={key} items={group} />;
+            return <Ul key={key} items={group} onAddAfter={handleAddAfter} />;
         }
 
         return (
             <div key={key}>
                 {group.map((item) => {
                     if (type === "checkbox") {
-                        return <Checkbox key={item.itemId} item={item} />;
+                        return <Checkbox key={item.itemId} item={item} onAddAfter={handleAddAfter} />;
                     }
                     if (type === "text") {
-                        return <TextItem key={item.itemId} item={item} />;
+                        return <TextItem key={item.itemId} item={item} onAddAfter={handleAddAfter} />;
                     }
                     return null;
                 })}
@@ -66,6 +78,7 @@ function CollapsibleJournal({ note, title, progress }) {
         return null;
     }
 
+
     return (
         <section
             style={{
@@ -75,8 +88,6 @@ function CollapsibleJournal({ note, title, progress }) {
                 borderRadius: "8px",
             }}
         >
-            {progress}
-
             <button
                 onClick={toggleCollapse}
                 style={{

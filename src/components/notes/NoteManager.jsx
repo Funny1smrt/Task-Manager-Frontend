@@ -1,7 +1,8 @@
 import { useContext } from "react";
 import { UserContext } from "../../context/context";
-// import Button from "../ui/Button";
-function NoteManager({ journalId, sendRequest }) {
+import useApiData from "../../hooks/useApiData";
+function NoteManager({ journalId }) {
+    const { sendRequest } = useApiData();
     const { user } = useContext(UserContext);
 
     const handleAddNote = async () => {
@@ -12,7 +13,7 @@ function NoteManager({ journalId, sendRequest }) {
         };
 
         try {
-            console.log("Adding note:", newNote);
+            console.log("Adding note...");
             const result = await sendRequest('POST', `/notes`, newNote); // чекаємо на виконання
             console.log("Note added:", result);
         } catch (error) {

@@ -3,10 +3,9 @@ import useApiData from "./useApiData";
 import { DraftContext } from "../context/context";
 
 function useNoteComponents() {
-
     const { setDraft } = useContext(DraftContext);
 
-    const { sendRequest } = useApiData();
+    const { sendRequest } = useApiData("/note_components", [], { lazy: true });
     const addListItem = useCallback(
         async (item, dataType, data) => {
             try {

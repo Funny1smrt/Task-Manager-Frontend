@@ -1,5 +1,5 @@
 import useApiData from "../../hooks/useApiData";
-import { useForm, Form } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 function TaskForm() {
     const { data: tasks, sendRequest } = useApiData("/tasks");
@@ -14,11 +14,10 @@ function TaskForm() {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <input type="text" placeholder="Назва завдання" {...register("title", {
-                    required: true, maxLength: 20, validate: {
-                        isTrim: value => value.trim() !== "",
-                        checkIsAvailable: value => !tasks.find(task => (task.title === value
-                        ))
-                    }
+                required: true, maxLength: 20, validate: {
+                    isTrim: value => value.trim() !== "",
+                    checkIsAvailable: value => !tasks.find(task => (task.title === value))
+                }
             })} />
             {errors?.title?.type === "required" && <p>Поле обов'язкове</p>}
             {errors?.title?.type === "maxLength" && <p>Максимум 20 символів</p>}

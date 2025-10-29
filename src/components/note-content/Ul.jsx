@@ -1,10 +1,11 @@
+// Ul.jsx
 import TextItem from "./TextItem";
-function Ul({ items }) {
+function Ul({ items, onAddAfter }) {
     return (
         <ul>
             {items.map((item) => (
                 <li key={item.itemId}>
-                    <TextItem item={item} />
+                    <TextItem item={item} onAddAfter={onAddAfter} />
                 </li>
             ))}
         </ul>
