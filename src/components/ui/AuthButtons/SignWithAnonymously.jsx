@@ -1,13 +1,12 @@
-import Button from "../../ui/Button";
 import useAuth from "../../../hooks/useAuth";
+import Button from "@mui/material/Button";
 function SignWithAnonymously() {
     const { handleSignInWithAnonymously } = useAuth();
     return (
         <Button
-            text="Увійти без реєстрації"
             onClick={handleSignInWithAnonymously}
             name="signInWithGoogle"
-        />
+        >Увійти анонімно</Button>
     );
 }
 

@@ -1,5 +1,5 @@
 import TagManager from "../components/tags/TagManager";
-function TagsList() {
+function TagsPage() {
     return (
         <div>
             <h2>Список тегів</h2>
@@ -8,4 +8,4 @@ function TagsList() {
         </div>
     );
 }
-export default TagsList;
+export default TagsPage;

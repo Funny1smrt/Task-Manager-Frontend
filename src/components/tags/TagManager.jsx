@@ -1,7 +1,10 @@
 import { useCallback, useMemo } from "react";
 import useApiData from "../../hooks/useApiData";
 import { useForm } from "react-hook-form";
+import Button from '@mui/material/Button'
 
+// TODO: Перевірити та покращити TagManager
+// ! Винести чи переробити форму керування тегів
 const TagManager = () => {
     const { data: tags, sendRequest } = useApiData("/tags", [], { lazy: false });
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -60,7 +63,9 @@ const TagManager = () => {
                     {tags?.map((tag) => (
                         <div key={tag._id} className="tag-manager__tag">
                             <span>{tag.name}</span>
-                            <button onClick={() => handleDeleteTag(tag._id)}>Видалити</button>
+                            <Button variant="text" color="primary" onClick={() => handleDeleteTag(tag._id)}>
+                                Видалити
+                            </Button>
                             <hr />
                         </div>
                         

@@ -3,6 +3,7 @@ import { useState, useContext } from "react";
 import LogoutButton from "../components/ui/AuthButtons/LogoutButton";
 import useApiData from "../hooks/useApiData";
 import { Link } from "react-router-dom";
+import Button from '@mui/material/Button'
 function AccountPage() {
     const { user } = useContext(UserContext);
     const { data: notes } = useApiData("/notes?allNotes=true");
@@ -67,7 +68,7 @@ function AccountPage() {
 
             <p>{uploadMessage}</p>
             <br />
-
+            <Button variant="text" color="primary" component={Link} to="/settings">Перейти до налаштувань</Button>
             <LogoutButton />
         </main>
     );

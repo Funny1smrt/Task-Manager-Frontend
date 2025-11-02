@@ -1,9 +1,8 @@
 import { useState, useContext, useMemo } from "react";
 import { UserContext } from "../../context/context";
-import Input from "../ui/Input";
-
-
-function JournalInput({ sendRequest }) {
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+function JournalInput({ sendRequest, loading }) {
 
     const [name, setName] = useState("");
     const { user } = useContext(UserContext);
@@ -31,16 +30,22 @@ function JournalInput({ sendRequest }) {
     };
     return (
         <section>
-            <Input
+            <TextField
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                size="small"
+                color="success"
+                id="name"
+                label="Назва блоку"
                 type="text"
                 name="name"
                 value={name}
-                setChange={setName}
-                placeholder="Введіть назву блоку"
+                onChange={(e) => setName(e.target.value)}
             />
-            <button onClick={handleAddJournal} name="addJournal">
+            <Button loading={loading} color="success" size="small" variant="contained" onClick={handleAddJournal} name="addJournal">
                 Додати блок
-            </button>
+            </Button>
         </section>
     );
 }

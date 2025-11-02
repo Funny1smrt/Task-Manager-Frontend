@@ -1,15 +1,15 @@
 import TaskController from "../components/tasks/TaskController";
 import TaskList from "../components/tasks/TaskList";
-// import useApiData from "../hooks/useApiData";
+import Box from '@mui/material/Box';
 
 function TaskManager() {
     // const { sendRequest } = useApiData("/tasks");
 
     return (
-        <section>
+        <Box color="background.default" sx={{ p: 2 }}>
             <TaskController />
             <TaskList />
-        </section>
+        </Box>
     );
 }
 

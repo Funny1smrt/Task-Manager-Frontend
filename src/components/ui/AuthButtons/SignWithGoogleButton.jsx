@@ -1,15 +1,14 @@
-import Button from "../../ui/Button";
 import useAuth from "../../../hooks/useAuth";
+import Button from "@mui/material/Button";
 function SignWithGoogleButton() {
     const { handleSignInWithGoogle } = useAuth();
 
 
     return (
         <Button
-            text="Увійти через Google"
             onClick={handleSignInWithGoogle}
             name="signInWithGoogle"
-        />
+        >Увійти з Google</Button>
     );
 }
 

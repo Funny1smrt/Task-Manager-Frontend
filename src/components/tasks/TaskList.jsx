@@ -1,11 +1,13 @@
 import useApiData from "../../hooks/useApiData";
 import Task from "./Task";
+import { Stack } from "@mui/material";
 function TaskList() {
-    const { data: tasks, loading: taksLoading } = useApiData("/tasks");
-    const { data: notes, loading: notesLoading } = useApiData("/notes?isTask=true");
-    console.log("🔹 notes у TaskList:", notes);
+    const { data: tasks, loading: taksLoading } = useApiData("/tasks", []);
+    const { data: notes, loading: notesLoading } = useApiData("/notes?isTask=true", []);
+
     return (
-        <section>
+        < Stack spacing = { 2} >
+
             <h2>Список завдань</h2>
             {taksLoading && notesLoading && <p>...завантаження</p>}
             {notes?.length !== 0 && notes?.map((task) => <Task key={task._id} task={task} />)}
@@ -13,7 +15,7 @@ function TaskList() {
                 <Task key={task._id} task={task} />
             ))}
             {tasks?.length === 0 && <p>Завдань немає</p>}
-        </section>
+        </Stack>
     );
 }
 
