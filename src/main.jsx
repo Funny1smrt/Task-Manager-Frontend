@@ -22,6 +22,7 @@ import {
     ThemeProvider,
 } from "@mui/material/styles";
 import { theme } from "./lib/theme.js";
+import TaskCalendar from './pages/TaskCalendar.jsx';
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
@@ -43,6 +44,8 @@ ReactDOM.createRoot(root).render(
                                 <Route path="/tasks" element={<TaskManager />} />
                                 {/* Сторінка керування тегами */}
                                 <Route path="/tags" element={<TagsPage />} />
+                                {/* Сторінка календар */}
+                                <Route path="/calendar" element={<TaskCalendar />} />
                                 {/* Сторінка налаштувань */}
                                 <Route path="/settings" element={<Settings />} />
                                 {/* Сторінка редагування завдання */}

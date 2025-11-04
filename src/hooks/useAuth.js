@@ -9,13 +9,30 @@ import { useContext } from "react";
 import { UserContext } from "../context/context";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../lib/constants";
-// import useApiData from "./useApiData";
+import useApiData from "./useApiData";
 
 const useAuth = () => {
     const { setUser } = useContext(UserContext);
-    // const { sendRequest } = useApiData();
     const navigate = useNavigate();
-    const handleSignInWithEmail = async (email, password) => {
+    const { sendRequest } = useApiData("/users");
+    // Функція для збереження токену
+    const handleSaveToken = async (result) => {
+        const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
+        // Надсилаємо на бекенд
+        const response = await fetch(`${API_URL}/users/auth`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+        });
+
+        const data = await response.json();
+        localStorage.setItem("authToken", data.jwt); // зберігаємо токен в localStorage
+        console.log("Signed in successfully");
+    };
+
+    // Увійти з Firebase за допомогою email та паролем
+    const handleSignInWithEmail = async (data) => {
+        const { email, password } = data;
         try {
             const result = await signInWithEmailAndPassword(
                 auth,
@@ -23,23 +40,21 @@ const useAuth = () => {
                 password,
             );
             setUser(result.user);
-            const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
-            // Надсилаємо на бекенд
-            const response = await fetch(`${API_URL}/users/auth`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ idToken }),
-            });
-
-            const data = await response.json();
-            localStorage.setItem("authToken", data.jwt);
-            console.log("Signed in successfully");
+            const userDataToSend = {
+                uid:result.user.uid,
+            };
+            console.log(userDataToSend);
+            sendRequest('POST', `/users`, userDataToSend);
+            handleSaveToken(result);
             navigate("/"); // автоматично переходимо в додаток
         } catch (error) {
             console.error("Sign-in error:", error.code, error.message);
         }
     };
-    const handleSignUpWithEmail = async (email, password) => {
+
+    // Реєстрація з Firebase за допомогою email та паролем
+    const handleSignUpWithEmail = async (data) => {
+        const { email, password } = data;
         try {
             const result = await createUserWithEmailAndPassword(
                 auth,
@@ -47,65 +62,30 @@ const useAuth = () => {
                 password,
             );
             setUser(result.user);
-            const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
-            // Надсилаємо на бекенд
-            const response = await fetch(`${API_URL}/users/auth`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ idToken }),
-            });
-
-            const data = await response.json();
-            localStorage.setItem("authToken", data.jwt);
-            console.log("Signed in successfully");
+            handleSaveToken(result);
             navigate("/"); // автоматично переходимо в додаток
         } catch (error) {
             console.error("Sign-in error:", error.code, error.message);
         }
     };
+
+    // Увійти з Firebase за допомогою Google
     const handleSignInWithGoogle = async () => {
         try {
             const result = await signInWithPopup(auth, provider);
             setUser(result.user);
-            const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
-            // Надсилаємо на бекенд
-            const response = await fetch(
-                `${API_URL}/users/auth`,
-
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idToken }),
-                },
-            );
-
-            const data = await response.json();
-            localStorage.setItem("authToken", data.jwt);
-            console.log("Signed in successfully");
+            handleSaveToken(result);
             navigate("/"); // автоматично переходимо в додаток
         } catch (error) {
             console.error("Sign-in error:", error.code, error.message);
         }
     };
+
     const handleSignInWithAnonymously = async () => {
         try {
             const result = await signInAnonymously(auth);
             setUser(result.user);
-            const idToken = await result.user.getIdToken(); // отримуємо токен Firebase Auth
-            // Надсилаємо на бекенд
-            const response = await fetch(
-                `${API_URL}/users/auth`,
-
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idToken }),
-                },
-            );
-
-            const data = await response.json();
-            localStorage.setItem("authToken", data.jwt);
-            console.log("Signed in successfully");
+            handleSaveToken(result);
             navigate("/"); // автоматично переходимо в додаток
         } catch (error) {
             console.error("Sign-in error:", error.code, error.message);

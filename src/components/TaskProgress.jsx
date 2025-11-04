@@ -1,10 +1,11 @@
+import { Box } from "@mui/material";
 import ProgressTag from "./tags/functionalTags/ProgressTag";
 function TaskProgress({ note }) {
     const noteId = note?._id;
     const isTask = note?.isTask || false;
 
     return (
-        <div style={{ marginBottom: "10px" }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {isTask  && (
                 <>
                     <hr />
@@ -13,7 +14,7 @@ function TaskProgress({ note }) {
             )}
 
             
-        </div>
+        </Box>
     );
 }
 

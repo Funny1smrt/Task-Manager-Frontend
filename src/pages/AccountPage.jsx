@@ -3,74 +3,131 @@ import { useState, useContext } from "react";
 import LogoutButton from "../components/ui/AuthButtons/LogoutButton";
 import useApiData from "../hooks/useApiData";
 import { Link } from "react-router-dom";
-import Button from '@mui/material/Button'
+import { Grid, Button, Typography, Avatar, ButtonBase, ButtonGroup, Badge, Divider, CircularProgress, Container } from '@mui/material'
 function AccountPage() {
     const { user } = useContext(UserContext);
     const { data: notes } = useApiData("/notes?allNotes=true");
     const { data: journals } = useApiData("/journals");
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    const [uploadMessage, setUploadMessage] = useState("");
-
-    const { data: avatars, sendRequest } = useApiData("/avatars");
-    // 📁 Обробник вибору файлу
-    const handleFileChange = (e) => {
-        setSelectedFile(e.target.files[0]);
-    };
+    // Assuming 'data: avatar' from this hook is the URL of the current avatar
+    const { data: avatarUrl, sendRequest, loading } = useApiData("/avatars");
+    const [, setSelectedFile] = useState(null);
 
     // 🚀 Обробник завантаження файлу
-    const handleUpload = async () => {
-        if (!selectedFile) {
-            setUploadMessage("Оберіть файл перед завантаженням!");
-            return;
-        }
+    const handleUpload = async (e) => {
+        const fileToUpload = e.target.files[0]; // 👈 Correct: Get the file directly
+        setSelectedFile(fileToUpload); // Update state (asynchronously)
+
+        if (!fileToUpload) return; // 👈 Correct: Check the local variable
 
         try {
-            setUploading(true);
             const formData = new FormData();
-            formData.append("file", selectedFile);
+            formData.append("file", fileToUpload); // 👈 Correct: Append the local variable
 
             // 🔐 якщо бекенд перевіряє токен — додаємо його
             const token = localStorage.getItem("authToken");
+            if (!token) {
+                console.error("Token not found. Cannot upload avatar.");
+                return;
+            }
 
+            // The 'sendRequest' function should handle setting the 'Content-Type' correctly for FormData.
             const res = await sendRequest("POST", "/avatars/upload", formData, token);
 
-            setUploadMessage("✅ Аватар успішно завантажено!");
             console.log("Відповідь:", res.data);
+
+            // You might need to trigger a refetch of the avatar here if your hook doesn't do it automatically, 
+            // or update the user context with the new avatar URL from the response (res.data).
+
         } catch (error) {
-            console.error("Помилка при завантаженні:", error);
-            setUploadMessage("❌ Помилка при завантаженні аватара");
-        } finally {
-            setUploading(false);
+            console.error("Помилка завантаження:", error);
         }
     };
 
     return (
-        <main>
-            <h1>{user.displayName || "Немає нікнейму"}</h1>
-            <img src={avatars?.url || "https://cdn-icons-png.flaticon.com/512/149/149071.png"} alt={user.displayName + " avatar"} width={100} />
-            <p>{user.email}</p>
-            <p>{user.creationTime}</p>
-            <h2>Мої збереження</h2>
-            <p>Нотаток: {notes?.length}</p>
-            <p>Блоків: {journals?.length}</p>
-            <h3><Link to="/tags">Теги</Link></h3>
-            <br /><br />
-            <h3>Завантажити аватар</h3>
-            <br />
-            {/* 📁 Вибір файлу */}
-            <input type="file" name="file" onChange={handleFileChange} />
+        <Container style={{ height: '100%', padding: '20px' }}>
+            <Grid container spacing={2} justifyContent="center" alignItems="center" style={{ height: '100%' }}
+                direction="column"
+            >
+                <Grid direction="row" style={{ width: '100%' }} size={12}>
+                    <ButtonBase
+                        component="label"
+                        role={undefined}
+                        tabIndex={-1}
+                        aria-label="Avatar image"
+                        sx={{
+                            borderRadius: '40px',
+                            '&:has(:focus-visible)': {
+                                outline: '2px solid',
+                                outlineOffset: '2px',
+                            },
+                        }}
+                    >
+                        {/* Use 'avatarUrl' from the hook OR 'user.avatar' as fallback */}
+                        <Badge
+                            overlap="circular"
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            badgeContent={
 
-            {/* 🚀 Кнопка завантаження */}
-            <button onClick={handleUpload} disabled={uploading}>
-                {uploading ? "Завантаження..." : "Завантажити аватар"}
-            </button>
+                                loading ? (
+                                    <CircularProgress color="inherit" size={20} />
+                                ) : null
+                            }
+                        >
+                            <Avatar alt={user.name || user.email} src={avatarUrl.url || user.avatar} sx={{ width: 100, height: 100 }} />
+                        </Badge>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            style={{
+                                border: 0,
+                                clip: 'rect(0 0 0 0)',
+                                height: '1px',
+                                margin: '-1px',
+                                overflow: 'hidden',
+                                padding: 0,
+                                position: 'absolute',
+                                whiteSpace: 'nowrap',
+                                width: '1px',
+                            }}
+                            onChange={handleUpload}
+                        />
+                    </ButtonBase>
+                    <Typography variant="h5" component="div" color="primary">
+                        {user.name || user.email}
+                    </Typography>
+                </Grid>
+                <Divider />
+                <Grid direction="row" style={{ width: '100%' }} size={12}>
+                    <Typography variant="h6" component="div" color="primary">
+                        {user.description || "Немає опису"}
+                    </Typography>
+                </Grid>
+                <Divider />
 
-            <p>{uploadMessage}</p>
-            <br />
-            <Button variant="text" color="primary" component={Link} to="/settings">Перейти до налаштувань</Button>
-            <LogoutButton />
-        </main>
+                <Grid direction="row" style={{ width: '100%' }} size={12}>
+                    <Typography variant="h6" component="div" color="primary">
+                        {notes.length} нотаток
+                    </Typography>
+                </Grid>
+                <Divider />
+                <Grid direction="row" style={{ width: '100%' }} size={12}>
+                    <Typography variant="h6" component="div" color="primary">
+                        {journals.length} журналів
+                    </Typography>
+                </Grid>
+                <Divider />
+                <ButtonGroup aria-label="outlined primary button group">
+                    <Button component={Link} to="/account/edit" name="profile">Редагувати профіль</Button>
+                    <LogoutButton />
+                </ButtonGroup>
+                <Button component={Link} to="/tags">Теги</Button>
+                <Button>Статистика</Button>
+                <Button component={Link} to="/settings">Налаштування</Button>
+
+
+            </Grid >
+        </Container>
+
     );
 }
 

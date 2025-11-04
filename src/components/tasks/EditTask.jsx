@@ -95,7 +95,7 @@ function EditTask() {
 
                                             renderValue={(selected) => (
                                                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                                                    {selected.map((option, index) => (
+                                                    {selected.map((option) => (
                                                         // 💡 ОНОВЛЕННЯ 3: Використовуйте унікальніший ключ для Chip
                                                         <Chip key={option} label={option} variant="outlined" />
                                                     ))}

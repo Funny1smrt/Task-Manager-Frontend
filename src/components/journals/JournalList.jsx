@@ -1,17 +1,18 @@
-import { Link } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
+import { useNavigate } from "react-router-dom";
 function JournalList({ journals }) {
+    const navigate = useNavigate();
 
     return (
         <section>
             <Typography variant="h5">Мої блоки</Typography>
             {journals.map((journal) => (
-                <Card key={journal._id} sx={{ padding: '10px', margin: '10px 0', backgroundColor: journal.color }}>
-                    <Typography variant="h6" key={journal._id}>
-                        <Link to={`/journal/${journal._id}`} >
-                            {journal.nameJournal}
-                        </Link>
+                <Card key={journal._id} sx={{ padding: '10px', margin: '10px 0', backgroundColor: journal.color, cursor: "pointer" }}
+                    onClick={() => navigate(`/journal/${journal._id}`)}>
+                    <Typography variant="h6" key={journal._id}  >
+                        {journal.title}
+
                     </Typography>
                 </Card>
                 // <Link to={`/journal/${journal._id}`} key={journal._id}>
@@ -20,7 +21,7 @@ function JournalList({ journals }) {
                 //     </li>
                 // </Link>
             ))}
-            {journals.length === 0 && <p>Блоків немає</p>}
+            {journals.length === 0 && <Typography>Журналів немає</Typography>}
         </section>
     );
 }

@@ -1,44 +1,39 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import SignWithAnonymously from "../../components/ui/AuthButtons/SignWithAnonymously";
 import SignWithGoogleButton from "../../components/ui/AuthButtons/SignWithGoogleButton";
-function SignUp() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+import { useForm } from "react-hook-form";
+import { Box, Button, CssBaseline, TextField, Typography } from "@mui/material";
+function Register() {
+
     const { handleSignUpWithEmail } = useAuth();
+    const { register, handleSubmit } = useForm();
 
     return (
-        <main>
-            <h2>Sign Up</h2>
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-                onClick={() => handleSignUpWithEmail(email, password)}
-                name="signUpWithEmail"
-            >
-                Зареєструватися
-            </button>
-            <SignWithAnonymously />
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', p: 2 }} >
+            <CssBaseline />
+            <Typography variant="h4" gutterBottom>
+                Реєстрація
+            </Typography>
+            <form onSubmit={handleSubmit(handleSignUpWithEmail)}>
+                <TextField {...register("email")} label="Email" variant="outlined" margin="normal" fullWidth required />
+                <TextField {...register("password")} label="Пароль" variant="outlined" margin="normal" type="password" fullWidth required />
+                <Button type="submit" variant="contained" color="primary" fullWidth>
+                    Зареєструватися
+                </Button>
+            </form>
+            <Typography variant="body2" gutterBottom>
+                Є акаунт?{" "}
+                <Button component={Link} to="/login" type="text">
+                    Увійти
+                </Button>
+            </Typography>
             <SignWithGoogleButton />
+            <SignWithAnonymously />
+        </Box>
 
-            <hr />
 
-            <p>
-                Вже зареєстровані? <Link to="/login">Увійти</Link>
-            </p>
-        </main>
     );
 }
 
-export default SignUp;
+export default Register;

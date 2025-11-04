@@ -1,12 +1,14 @@
-import { useState, useContext, useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { UserContext } from "../../context/context";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-function JournalInput({ sendRequest, loading }) {
+import { Button, Modal, Paper, TextField } from "@mui/material";
+import { useForm } from "react-hook-form";
+import useApiData from "../../hooks/useApiData";
 
-    const [name, setName] = useState("");
+function JournalInput({ showInput, handleShowInput }) {
+
     const { user } = useContext(UserContext);
-
+    const { data: journals, sendRequest } = useApiData("/journals", []);
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const randomColor = useMemo(() => {
         const letters = "0123456789ABCDEF";
         let color = "#";
@@ -16,37 +18,55 @@ function JournalInput({ sendRequest, loading }) {
         return color;
     }, []);
 
-    const handleAddJournal = async () => {
+    const handleAddJournal = async (data) => {
         try {
             await sendRequest('POST', `/journals`, {
-                nameJournal: name.toString(),
+                title: data.title,
                 author: user.displayName || user.email,
                 color: randomColor
             });
-            setName("");
+            reset();
         } catch (err) {
-            alert('Помилка при додаванні блоку!', err);
+            console.error(err);
         }
     };
+    const handleClose = () => {
+        reset();
+        handleShowInput();
+    };
     return (
-        <section>
-            <TextField
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                size="small"
-                color="success"
-                id="name"
-                label="Назва блоку"
-                type="text"
-                name="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-            />
-            <Button loading={loading} color="success" size="small" variant="contained" onClick={handleAddJournal} name="addJournal">
-                Додати блок
-            </Button>
-        </section>
+        <Modal
+            open={showInput} // Керується батьківським компонентом
+            onClose={handleShowInput} // Закриття по кліку поза областю
+            aria-labelledby="task-form-title"
+            aria-describedby="task-form-description"
+        >
+            <Paper sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }} elevation={3}>
+                <form onSubmit={handleSubmit(handleAddJournal)}>
+                    <TextField
+                        type="text"
+                        label="Назва блоку"
+                        fullWidth
+                        margin="normal"
+                        {...register("title", {
+                            required: true, maxLength: 20,
+                            validate: {
+                                checkIsEmpty: (value) => value.trim() !== "",
+                                checkIsAvailable: value => !journals.find(journal => (journal.title === value))
+                            }
+                        })}
+                        error={!!errors.title}
+                        helperText={errors.title ? "Назва обов'язкова, макс. 20 символів, унікальна та не порожня" : ""}
+                    />
+                    <Button color="success" size="small" variant="contained" type="submit" name="addJournal" disabled={!!errors.title}>
+                        Додати
+                    </Button>
+                    <Button color="error" size="small" variant="outlined" onClick={handleClose}>
+                        Скасувати
+                    </Button>
+                </form>
+            </Paper>
+        </Modal>
     );
 }
 

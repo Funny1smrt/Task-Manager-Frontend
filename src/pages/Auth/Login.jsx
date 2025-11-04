@@ -1,40 +1,47 @@
-import { useState } from "react";
 import {  Link } from "react-router-dom";
 import SignWithGoogleButton from "../../components/ui/AuthButtons/SignWithGoogleButton";
 import useAuth from "../../hooks/useAuth";
-function SignIn() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+import { useForm } from "react-hook-form";
+import { Box, Button, CssBaseline, TextField, Typography } from "@mui/material";
+
+function Login() {
+    const { register, handleSubmit, formState: { errors } } = useForm();
 
     const { handleSignInWithEmail } = useAuth();
-   
+
 
     return (
-        <main>
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-
-                onClick={() => handleSignInWithEmail( email, password )}
-                name="signInWithEmail"
-            >Увійти</button>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', p: 2 }} >
+            <CssBaseline />
+            <Typography variant="h4" gutterBottom>
+                Вхід
+            </Typography>
+            <form onSubmit={handleSubmit((data) => handleSignInWithEmail(data))}>
+                <TextField {...register("email", {
+                    required: true, validate: {
+                        isEmail: (value) => value.includes("@"),
+                        minLength: (value) => value.length > 5,
+                    }
+                })} label="Email" variant="outlined" margin="normal" fullWidth required
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                />
+                <TextField {...register("password")} label="Пароль" variant="outlined" margin="normal" type="password" fullWidth required/>
+                <Button type="submit" variant="contained" color="primary" fullWidth>
+                    Увійти
+                </Button>
+            </form>
+            <Typography variant="body2" gutterBottom>
+                Немає акаунту?{" "}
+                <Button component={Link} to="/register" type="text">
+                    Зареєструватися
+                </Button>
+            </Typography>
             <SignWithGoogleButton />
-            <hr />
-            <p>
-                Немає аккаунту? <Link to="/register">Зареєструватися</Link>
-            </p>
-        </main>
+        </Box>
+
+        
     );
 }
 
-export default SignIn;
+export default Login;

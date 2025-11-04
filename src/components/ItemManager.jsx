@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { DraftContext } from "../context/context";
+import { ButtonGroup, Button } from "@mui/material";
 function ItemManager({ noteId }) {
     const { addDraftItem } = useContext(DraftContext);
 
@@ -18,15 +19,16 @@ function ItemManager({ noteId }) {
 
 
     return (
-        <section>
+        <ButtonGroup variant="contained" aria-label="outlined primary button group">
             {typeNotes.map((type) => (
-                <button
+                <Button
+                    variant="outlined"
                     onClick={() => addDraftItem(noteId, type)}
                     name={type}
                     key={type}
-                >{type}</button>
+                >{type}</Button>
             ))}
-        </section>
+        </ButtonGroup>
     );
 }
 

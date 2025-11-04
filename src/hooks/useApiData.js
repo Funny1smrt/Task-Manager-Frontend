@@ -8,7 +8,6 @@ const useApiData = (endpoint, initialData = [], options = {}) => {
     const [data, setData] = useState(initialData);
     const [loading, setLoading] = useState(() => (lazy ? false : true));
     const [error, setError] = useState(null);
-    // console.log("lazy:", lazy, "loading:", loading);
     const token = useMemo(() => localStorage.getItem("authToken"), []);
 
     const getAuthConfig = useCallback(() => {
@@ -114,10 +113,10 @@ const useApiData = (endpoint, initialData = [], options = {}) => {
     const handleResourceUpdate = useCallback(
         (updatedData) => {
             if (!socketParams) return;
-            console.log(
-                `✅ Real-time оновлення для ${socketParams.resourceType}:`,
-                updatedData,
-            );
+            // console.log(
+            //     `✅ Real-time оновлення для ${socketParams.resourceType}:`,
+            //     updatedData,
+            // );
             setData(updatedData);
             setLoading(false);
         },
@@ -138,10 +137,10 @@ const useApiData = (endpoint, initialData = [], options = {}) => {
             if (!isSubscribed) return;
 
             socket.emit("join-user-room", { token, resourceType, reqQuery });
-            console.log(
-                `📡 Socket.IO: Приєднання до кімнати ${resourceType}`,
-                reqQuery,
-            );
+            // console.log(
+            //     `📡 Socket.IO: Приєднання до кімнати ${resourceType}`,
+            //     reqQuery,
+            // );
         };
 
         const handleConnectError = (error) => {
@@ -174,7 +173,7 @@ const useApiData = (endpoint, initialData = [], options = {}) => {
             isSubscribed = false;
             socket.off(eventName, handleResourceUpdate);
             socket.off("connect_error", handleConnectError);
-            console.log(`🔌 Відписка від ${eventName}`);
+            // console.log(`🔌 Відписка від ${eventName}`);
         };
         // ✅ Тепер всі залежності правильні і стабільні
     }, [token, socketParams, endpoint, handleResourceUpdate, fetchData, lazy]);
